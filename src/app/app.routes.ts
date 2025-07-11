@@ -116,5 +116,18 @@ export const routes: Routes = [
     canActivate: [authGuard()],
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' },
+  {
+    path: 'not-found',
+    loadComponent: () =>
+      import('./shared/components/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent
+      ),
+  },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./shared/components/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent
+      ),
+  },
 ];

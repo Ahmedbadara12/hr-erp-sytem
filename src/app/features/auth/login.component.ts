@@ -37,6 +37,21 @@ export class LoginComponent {
   role: UserRole | '' = '';
   username: string = '';
   constructor(private auth: AuthService, private router: Router) {}
+
+  ngOnInit() {
+    this.auth.isLoggedIn().subscribe(isLoggedIn => {
+      if (isLoggedIn) {
+        this.auth.getRole().subscribe(role => {
+          if (role === 'Admin') this.router.navigate(['/payroll']);
+          else if (role === 'HR') this.router.navigate(['/employee']);
+          else if (role === 'Employee') this.router.navigate(['/leave']);
+          else if (role === 'ProjectManager') this.router.navigate(['/tasks']);
+          else this.router.navigate(['/home']);
+        });
+      }
+    });
+  }
+
   onLogin() {
     if (this.role && this.username) {
       this.auth.login(this.role, this.username);
