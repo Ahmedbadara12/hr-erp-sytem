@@ -1,0 +1,295 @@
+/* You can add global styles to this file, and also import other style files */
+@import "../node_modules/bootstrap/scss/bootstrap";
+@import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
+
+// Google Fonts: Inter
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
+body {
+  font-family: "Inter", Arial, sans-serif;
+  background: #f7f6fb;
+  color: #232136;
+  font-size: 1.08rem;
+  line-height: 1.7;
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+.section-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  letter-spacing: 0.5px;
+}
+h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+h3,
+h4,
+h5 {
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+}
+
+// Navbar
+.navbar {
+  background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.08);
+  border-radius: 0 0 1.5rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 1.1rem 2.5rem;
+  margin-bottom: 2.5rem;
+}
+.navbar .navbar-brand {
+  font-weight: 700;
+  color: #fff !important;
+  letter-spacing: 1.5px;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+}
+.navbar .navbar-brand::before {
+  content: "\f007";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  margin-right: 0.5rem;
+  font-size: 1.2em;
+}
+.navbar .nav-link {
+  color: #ede9fe !important;
+  font-weight: 500;
+  transition: color 0.2s;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+.navbar .nav-link.active,
+.navbar .nav-link:hover {
+  color: #c4b5fd !important;
+  background: rgba(124, 58, 237, 0.12);
+}
+
+// Card
+.card {
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 36px rgba(124, 58, 237, 0.1);
+  border: none;
+  background: #fff;
+  margin-bottom: 2.5rem;
+  padding: 2.2rem 2rem 2rem 2rem;
+  transition: box-shadow 0.2s;
+}
+.card:hover {
+  box-shadow: 0 12px 48px rgba(124, 58, 237, 0.16);
+}
+.card-header {
+  background: linear-gradient(90deg, #ede9fe 0%, #c4b5fd 100%);
+  border-bottom: 1px solid #e0e7ef;
+  font-weight: 700;
+  font-size: 1.25rem;
+  border-radius: 1.25rem 1.25rem 0 0;
+  color: #7c3aed;
+  padding: 1.2rem 2rem 1rem 2rem;
+}
+
+// Buttons
+.btn-primary {
+  background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
+  border: none;
+  font-weight: 700;
+  border-radius: 0.7rem;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.16);
+}
+.btn-secondary {
+  background: #ede9fe;
+  color: #7c3aed;
+  border: none;
+  border-radius: 0.7rem;
+  font-weight: 600;
+}
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background: #c4b5fd;
+  color: #232136;
+}
+.btn,
+.btn-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 1.08em;
+  padding: 0.65em 1.5em;
+  border-radius: 0.9em;
+  margin-right: 0.5em;
+}
+.btn:last-child,
+.btn-sm:last-child {
+  margin-right: 0;
+}
+
+// Forms
+.form-control,
+.form-select,
+textarea {
+  border-radius: 0.7rem;
+  border: 1px solid #c4b5fd;
+  background: #f3f0ff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 1.08em;
+  padding: 0.85em 1.1em;
+  margin-bottom: 1.2em;
+}
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 2px #a78bfa33;
+  background: #fff;
+}
+label.form-label {
+  font-weight: 600;
+  color: #7c3aed;
+  letter-spacing: 0.5px;
+  font-size: 1.08em;
+  margin-bottom: 0.5em;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5) sepia(1) hue-rotate(230deg) saturate(5);
+}
+
+// Floating labels (Bootstrap 5)
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+  opacity: 0.85;
+  transform: scale(0.85) translateY(-1.5rem) translateX(0.15rem);
+  color: #7c3aed;
+}
+
+// Table
+.table {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background: #fff;
+  margin-bottom: 0;
+  font-size: 1.13em;
+}
+.table th {
+  background: #ede9fe;
+  font-weight: 700;
+  color: #7c3aed;
+  border-bottom: 2px solid #c4b5fd;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background: #f3f0ff;
+}
+.table-hover > tbody > tr:hover {
+  background: #e9d5ff;
+  transition: background 0.2s;
+}
+.table td,
+.table th {
+  vertical-align: middle;
+  border-top: none;
+  padding: 1.1em 1.3em;
+  font-size: 1.08em;
+}
+
+// Alerts
+.alert {
+  border-radius: 1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.06);
+  font-size: 1.08em;
+  padding: 1.1em 1.5em;
+  margin-bottom: 1.5em;
+}
+.alert-success {
+  background: #e9fbe9;
+  color: #15803d;
+  border: none;
+}
+.alert-danger {
+  background: #fbe9f3;
+  color: #be185d;
+  border: none;
+}
+.alert-info {
+  background: #ede9fe;
+  color: #7c3aed;
+  border: none;
+}
+
+// Badges
+.badge {
+  border-radius: 1.2em;
+  font-size: 1.05em;
+  padding: 0.5em 1.2em;
+  font-weight: 600;
+}
+
+// Section titles
+.section-title {
+  font-size: 2.1em;
+  font-weight: 700;
+  color: #7c3aed;
+  margin-bottom: 2.2em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding-left: 0.1em;
+}
+.section-title i {
+  font-size: 1.1em;
+}
+
+// Container
+.container {
+  max-width: 1100px;
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
+
+// Misc
+.mt-4,
+.my-4 {
+  margin-top: 2.2rem !important;
+}
+.mb-4,
+.my-4 {
+  margin-bottom: 2.2rem !important;
+}
+.pt-4,
+.py-4 {
+  padding-top: 2.2rem !important;
+}
+.pb-4,
+.py-4 {
+  padding-bottom: 2.2rem !important;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #ede9fe;
+}
+::-webkit-scrollbar-thumb {
+  background: #c4b5fd;
+  border-radius: 4px;
+}
+
+// Animations
+.card,
+.table,
+.alert,
+.navbar {
+  transition: box-shadow 0.2s, background 0.2s, color 0.2s;
+}

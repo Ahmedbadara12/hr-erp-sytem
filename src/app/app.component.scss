@@ -1,0 +1,22 @@
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  width: 220px;
+  min-width: 220px;
+  max-width: 220px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  z-index: 101;
+}
+
+// Ensure the main content scrolls, not the sidebar
+.flex-grow-1 {
+  overflow-y: auto;
+}
+
+
+

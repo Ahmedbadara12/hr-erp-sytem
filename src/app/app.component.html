@@ -1,0 +1,88 @@
+<div class="d-flex min-vh-100">
+  <!-- Sidebar Navigation (only if logged in) -->
+  <ng-container *ngIf="isLoggedIn$ | async">
+    <nav class="sidebar bg-white shadow-sm d-flex flex-column align-items-center py-4 px-2" style="width: 220px; min-width: 220px;">
+      <div class="mb-4">
+        <a class="navbar-brand fs-4 fw-bold text-primary d-flex align-items-center" href="#">
+          <i class="fas fa-cubes me-2"></i> HR ERP
+        </a>
+      </div>
+      <ul class="nav flex-column w-100">
+        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Admin'">
+          <a class="nav-link d-flex align-items-center" routerLink="/payroll" routerLinkActive="active">
+            <i class="fas fa-money-check-alt me-2"></i> Payroll
+          </a>
+        </li>
+        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Admin' || (role$ | async) === 'HR' || (role$ | async) === 'Employee'">
+          <a class="nav-link d-flex align-items-center" routerLink="/tasks" routerLinkActive="active">
+            <i class="fas fa-clipboard-list me-2"></i> Tasks
+          </a>
+        </li>
+        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'HR'">
+          <a class="nav-link d-flex align-items-center" routerLink="/employee" routerLinkActive="active">
+            <i class="fas fa-users me-2"></i> Employees
+          </a>
+        </li>
+        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'HR'">
+          <a class="nav-link d-flex align-items-center" routerLink="/leave" routerLinkActive="active">
+            <i class="fas fa-calendar-alt me-2"></i> Leave
+          </a>
+        </li>
+        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'ProjectManager'">
+          <a class="nav-link d-flex align-items-center" routerLink="/employee" routerLinkActive="active">
+            <i class="fas fa-users me-2"></i> Employees
+          </a>
+        </li>
+        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'ProjectManager'">
+          <a class="nav-link d-flex align-items-center" routerLink="/tasks" routerLinkActive="active">
+            <i class="fas fa-clipboard-list me-2"></i> Tasks
+          </a>
+        </li>
+        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'ProjectManager'">
+          <a class="nav-link d-flex align-items-center" routerLink="/leave" routerLinkActive="active">
+            <i class="fas fa-calendar-alt me-2"></i> Leave
+          </a>
+        </li>
+        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Employee'">
+          <a class="nav-link d-flex align-items-center" routerLink="/employee/profile/{{userId}}" routerLinkActive="active">
+            <i class="fas fa-user me-2"></i> My Info
+          </a>
+        </li>
+      </ul>
+      <div class="mt-auto w-100">
+        <ul class="nav flex-column w-100 mb-2">
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center" routerLink="/profile" routerLinkActive="active">
+              <i class="fas fa-user me-2"></i> Profile
+            </a>
+          </li>
+        </ul>
+        <div class="border-top pt-3">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-user-circle fa-lg me-2 text-secondary"></i>
+            <span class="fw-semibold">{{ role$ | async }}</span>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm w-100 mt-3" (click)="logout()">
+            <i class="fas fa-sign-out-alt me-1"></i> Logout
+          </button>
+        </div>
+      </div>
+    </nav>
+  </ng-container>
+
+  <!-- Main Content Area -->
+  <div class="flex-grow-1 bg-light d-flex flex-column">
+    <!-- Top Bar -->
+    <nav class="navbar navbar-light bg-white shadow-sm px-4 py-2" style="min-height: 56px;">
+      <div class="container-fluid justify-content-end">
+        <span class="navbar-text fw-semibold text-secondary">
+          Welcome to HR ERP
+          <span *ngIf="role$ | async as role" class="badge bg-primary ms-2">{{ role }}</span>
+        </span>
+      </div>
+    </nav>
+    <div class="container flex-grow-1 d-flex flex-column justify-content-center align-items-center" [ngClass]="{'justify-content-center align-items-center': !(isLoggedIn$ | async)}">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
