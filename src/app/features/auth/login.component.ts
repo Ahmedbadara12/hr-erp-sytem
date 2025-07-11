@@ -9,17 +9,32 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="container d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+    <div
+      class="container d-flex justify-content-center align-items-center"
+      style="min-height: 60vh;"
+    >
       <div class="card p-4" style="min-width: 320px;">
         <h4 class="mb-3">Login</h4>
         <form (ngSubmit)="onLogin()">
           <div class="mb-3">
             <label class="form-label" for="login-username">Username</label>
-            <input id="login-username" class="form-control" [(ngModel)]="username" name="username" required />
+            <input
+              id="login-username"
+              class="form-control"
+              [(ngModel)]="username"
+              name="username"
+              required
+            />
           </div>
           <div class="mb-3">
             <label class="form-label" for="login-role">Role</label>
-            <select id="login-role" class="form-select" [(ngModel)]="role" name="role" required>
+            <select
+              id="login-role"
+              class="form-select"
+              [(ngModel)]="role"
+              name="role"
+              required
+            >
               <option value="">Select role</option>
               <option value="Admin">Admin</option>
               <option value="Employee">Employee</option>
@@ -27,11 +42,17 @@ import { FormsModule } from '@angular/forms';
               <option value="ProjectManager">Project Manager</option>
             </select>
           </div>
-          <button class="btn btn-primary w-100" type="submit" [disabled]="!role || !username">Login</button>
+          <button
+            class="btn btn-primary w-100"
+            type="submit"
+            [disabled]="!role || !username"
+          >
+            Login
+          </button>
         </form>
       </div>
     </div>
-  `
+  `,
 })
 export class LoginComponent {
   role: UserRole | '' = '';
@@ -39,9 +60,9 @@ export class LoginComponent {
   constructor(private auth: AuthService, private router: Router) {}
 
   ngOnInit() {
-    this.auth.isLoggedIn().subscribe(isLoggedIn => {
+    this.auth.isLoggedIn().subscribe((isLoggedIn) => {
       if (isLoggedIn) {
-        this.auth.getRole().subscribe(role => {
+        this.auth.getRole().subscribe((role) => {
           if (role === 'Admin') this.router.navigate(['/payroll']);
           else if (role === 'HR') this.router.navigate(['/employee']);
           else if (role === 'Employee') this.router.navigate(['/leave']);
@@ -55,7 +76,7 @@ export class LoginComponent {
   onLogin() {
     if (this.role && this.username) {
       this.auth.login(this.role, this.username);
-      this.router.navigate(['/']);
+      this.router.navigate(['/home']);
     }
   }
-} 
+}
