@@ -19,7 +19,9 @@ export class AppComponent {
   userId = this.auth.getUserId();
   username = this.auth.getUsername();
 
-  constructor(public auth: AuthService, private router: Router) {}
+  constructor(public auth: AuthService, private router: Router) {
+    this.auth.getUsername$().subscribe(name => this.username = name);
+  }
 
   logout() {
     this.auth.logout();

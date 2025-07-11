@@ -9,6 +9,7 @@ export type UserRole = 'Admin' | 'Employee' | 'HR' | 'ProjectManager';
 export class AuthService {
   private loggedIn$ = new BehaviorSubject<boolean>(this.hasSession());
   private role$ = new BehaviorSubject<UserRole | null>(this.getStoredRole());
+  private username$ = new BehaviorSubject<string>(this.getStoredUsername());
 
   private isBrowser(): boolean {
     return typeof window !== 'undefined' && !!window.localStorage;
@@ -28,15 +29,18 @@ export class AuthService {
     }
     this.loggedIn$.next(true);
     this.role$.next(role);
+    this.username$.next(username);
   }
 
   logout() {
     if (this.isBrowser()) {
       localStorage.removeItem('role');
       localStorage.removeItem('loggedIn');
+      localStorage.removeItem('username');
     }
     this.loggedIn$.next(false);
     this.role$.next(null);
+    this.username$.next('demo-user');
   }
 
   getRole(): Observable<UserRole | null> {
@@ -62,6 +66,10 @@ export class AuthService {
     return 'demo-user';
   }
 
+  getUsername$(): Observable<string> {
+    return this.username$.asObservable();
+  }
+
   private hasSession(): boolean {
     return this.isBrowser() && localStorage.getItem('loggedIn') === 'true';
   }
@@ -70,5 +78,9 @@ export class AuthService {
     return this.isBrowser()
       ? (localStorage.getItem('role') as UserRole) || null
       : null;
+  }
+
+  private getStoredUsername(): string {
+    return this.isBrowser() ? localStorage.getItem('username') || 'demo-user' : 'demo-user';
   }
 }
