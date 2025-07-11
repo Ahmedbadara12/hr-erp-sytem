@@ -16,69 +16,102 @@ import { PLATFORM_ID } from '@angular/core';
   standalone: true,
   imports: [RouterModule, CommonModule, LoadingSpinnerComponent],
   template: `
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">My Leave Requests</h5>
+    <div class="table-card">
+      <div
+        class="d-flex justify-content-between align-items-center mb-3 flex-wrap"
+      >
+        <div class="section-title mb-0">
+          <i class="fas fa-calendar-alt"></i> Leave Requests
+        </div>
         <a
-          *ngIf="role === 'Employee'"
-          class="btn btn-primary btn-sm"
+          *ngIf="(role$ | async) === 'Employee'"
+          class="btn btn-odoo"
           routerLink="/leave/apply"
         >
           <i class="fas fa-plus"></i> Apply for Leave
         </a>
       </div>
-      <div class="card-body p-0">
-        <ng-container *ngIf="userIdLoaded; else loading">
-          <ng-container *ngIf="leaves$ | async as leaves; else loading">
-            <div class="table-responsive">
-              <table class="table table-striped mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th>Type</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Status</th>
-                    <th style="width: 120px;">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let leave of leaves">
-                    <td>{{ leave.type }}</td>
-                    <td>{{ leave.from }}</td>
-                    <td>{{ leave.to }}</td>
-                    <td>
-                      <span
-                        [ngClass]="{
-                          'badge bg-warning text-dark': leave.status === 'Pending',
-                          'badge bg-success': leave.status === 'Approved',
-                          'badge bg-danger': leave.status === 'Rejected'
-                        }"
-                        >{{ leave.status }}</span
-                      >
-                    </td>
-                    <td>
-                      <button
-                        *ngIf="role === 'Employee' && leave.status === 'Pending'"
-                        class="btn btn-sm btn-danger me-1"
-                        title="Delete"
-                        (click)="deleteLeave(leave.id)"
-                      >
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="leaves.length === 0">
-                    <td colspan="5" class="text-center">No leave requests found.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </ng-container>
+      <ng-container *ngIf="userIdLoaded">
+        <ng-container *ngIf="leaves$ | async as leaves; else loading">
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Type</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Status</th>
+                  <th *ngIf="(role$ | async) === 'Employee' || (role$ | async) === 'HR'">Assignee</th>
+                  <th style="width: 120px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let leave of filteredLeaves(leaves, (role$ | async))">
+                  <td>{{ leave.type }}</td>
+                  <td>{{ leave.from }}</td>
+                  <td>{{ leave.to }}</td>
+                  <td>
+                    <span
+                      [ngClass]="{
+                        'badge bg-warning text-dark':
+                          leave.status === 'Pending',
+                        'badge bg-success': leave.status === 'Approved',
+                        'badge bg-danger': leave.status === 'Rejected'
+                      }"
+                      >{{ leave.status }}</span
+                    >
+                  </td>
+                  <td *ngIf="(role$ | async) === 'Employee' || (role$ | async) === 'HR'">
+                    {{ getAssigneeName(leave.employeeId) }}
+                  </td>
+                  <td>
+                    <button
+                      *ngIf="(role$ | async) === 'Employee' && leave.status === 'Pending'"
+                      class="btn btn-sm btn-danger me-1 mb-1"
+                      title="Delete"
+                      (click)="deleteLeave(leave.id)"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                    <button
+                      *ngIf="(role$ | async) === 'HR' && leave.status === 'Pending'"
+                      class="btn btn-sm btn-success me-1 mb-1"
+                      title="Approve"
+                      (click)="approveLeave(leave.id)"
+                    >
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button
+                      *ngIf="(role$ | async) === 'HR' && leave.status === 'Pending'"
+                      class="btn btn-sm btn-danger me-1 mb-1"
+                      title="Reject"
+                      (click)="rejectLeave(leave.id)"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                    <button
+                      *ngIf="(role$ | async) === 'HR'"
+                      class="btn btn-sm btn-outline-danger mb-1"
+                      title="Delete"
+                      (click)="deleteLeave(leave.id)"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredLeaves(leaves, (role$ | async)).length === 0">
+                  <td colspan="6" class="text-center">
+                    No leave requests found.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </ng-container>
-        <ng-template #loading>
-          <app-loading-spinner></app-loading-spinner>
-        </ng-template>
-      </div>
+      </ng-container>
+      <ng-template #loading>
+        <app-loading-spinner></app-loading-spinner>
+      </ng-template>
     </div>
   `,
   providers: [LeaveService, EmployeeService],
@@ -87,7 +120,7 @@ export class LeaveListComponent implements OnInit {
   leaves$!: Observable<ILeaveRequest[]>;
   userId: number | null = null;
   userIdLoaded = false;
-  public role: UserRole | null = null;
+  public role$ = this.auth.getRole();
   private employees: IEmployee[] = [];
 
   constructor(
@@ -105,20 +138,12 @@ export class LeaveListComponent implements OnInit {
     }
     this.userId = this.auth.getUserId();
     this.userIdLoaded = !!this.userId;
-    this.auth.getRole().subscribe((role) => {
-      this.role = role;
-      if (role === 'Employee' && this.userId) {
-        this.leaves$ = this.leaveService
-          .getLeaves()
-          .pipe(map((leaves) => leaves.filter((l) => l.employeeId === this.userId)));
-      } else {
-        this.leaves$ = of([]);
-      }
-      // Fetch all employees for name lookup (not used for Employee view, but kept for completeness)
-      this.employeeService
-        .getEmployees()
-        .subscribe((emps: IEmployee[]) => (this.employees = emps || []));
-    });
+    // Always subscribe to all leaves for real-time updates
+    this.leaves$ = this.leaveService.getLeaves();
+    // Fetch all employees for name lookup
+    this.employeeService
+      .getEmployees()
+      .subscribe((emps: IEmployee[]) => (this.employees = emps || []));
   }
 
   deleteLeave(id: number) {
@@ -127,9 +152,35 @@ export class LeaveListComponent implements OnInit {
         if (success && this.userId) {
           this.leaves$ = this.leaveService
             .getLeaves()
-            .pipe(map((leaves) => leaves.filter((l) => l.employeeId === this.userId)));
+            .pipe(
+              map((leaves) =>
+                leaves.filter((l) => l.employeeId === this.userId)
+              )
+            );
         }
       });
     }
+  }
+
+  approveLeave(id: number) {
+    this.leaveService.approveLeave(id);
+  }
+
+  rejectLeave(id: number) {
+    this.leaveService.rejectLeave(id);
+  }
+
+  filteredLeaves(leaves: ILeaveRequest[], role: UserRole | null): ILeaveRequest[] {
+    if (role === 'Employee') {
+      return leaves.filter((l) => l.employeeId === this.userId);
+    }
+    if (role === 'HR') {
+      return leaves;
+    }
+    return [];
+  }
+  getAssigneeName(employeeId: number): string {
+    const emp = this.employees.find((e) => e.id === employeeId);
+    return emp ? emp.name : 'Unknown';
   }
 }

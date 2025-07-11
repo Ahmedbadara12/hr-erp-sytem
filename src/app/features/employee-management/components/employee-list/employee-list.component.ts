@@ -14,69 +14,65 @@ import { PLATFORM_ID } from '@angular/core';
   standalone: true,
   imports: [RouterModule, CommonModule, LoadingSpinnerComponent],
   template: `
-    <div class="card">
-      <div
-        class="card-header d-flex justify-content-between align-items-center"
-      >
-        <h5 class="mb-0">Employee List</h5>
+    <div class="table-card">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <div class="section-title mb-0"><i class="fas fa-users"></i> Employee List</div>
         <a
-          class="btn btn-primary btn-sm"
+          class="btn btn-odoo"
           [routerLink]="['/employee', 'create']"
           *ngIf="role === 'HR'"
         >
           <i class="fas fa-plus"></i> Add Employee
         </a>
       </div>
-      <div class="card-body p-0">
-        <ng-container *ngIf="employees$ | async as employees; else loading">
-          <div class="table-responsive">
-            <table class="table table-striped mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Position</th>
-                  <th>Department</th>
-                  <th style="width: 120px;">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let emp of employees">
-                  <td>{{ emp.name }}</td>
-                  <td>{{ emp.email }}</td>
-                  <td>{{ emp.position }}</td>
-                  <td>{{ emp.department }}</td>
-                  <td>
-                    <a
-                      class="btn btn-sm btn-info me-1"
-                      [routerLink]="['/employee', 'profile', emp.id]"
-                    >
-                      <i class="fas fa-user"></i>
-                    </a>
-                    <a
-                      class="btn btn-sm btn-warning me-1"
-                      [routerLink]="['/employee', 'edit', emp.id]"
-                      *ngIf="role === 'HR'"
-                    >
-                      <i class="fas fa-edit"></i>
-                    </a>
-                    <button
-                      class="btn btn-sm btn-danger"
-                      (click)="deleteEmployee(emp.id)"
-                      *ngIf="role === 'HR'"
-                    >
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </ng-container>
-        <ng-template #loading>
-          <app-loading-spinner></app-loading-spinner>
-        </ng-template>
-      </div>
+      <ng-container *ngIf="employees$ | async as employees; else loading">
+        <div class="table-responsive">
+          <table class="table table-striped mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Position</th>
+                <th>Department</th>
+                <th style="width: 120px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let emp of employees">
+                <td>{{ emp.name }}</td>
+                <td>{{ emp.email }}</td>
+                <td>{{ emp.position }}</td>
+                <td>{{ emp.department }}</td>
+                <td>
+                  <a
+                    class="btn btn-sm btn-info me-1 mb-1"
+                    [routerLink]="['/employee', 'profile', emp.id]"
+                  >
+                    <i class="fas fa-user"></i>
+                  </a>
+                  <a
+                    class="btn btn-sm btn-warning me-1 mb-1"
+                    [routerLink]="['/employee', 'edit', emp.id]"
+                    *ngIf="role === 'HR'"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button
+                    class="btn btn-sm btn-danger mb-1"
+                    (click)="deleteEmployee(emp.id)"
+                    *ngIf="role === 'HR'"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
+      <ng-template #loading>
+        <app-loading-spinner></app-loading-spinner>
+      </ng-template>
     </div>
   `,
   styles: [

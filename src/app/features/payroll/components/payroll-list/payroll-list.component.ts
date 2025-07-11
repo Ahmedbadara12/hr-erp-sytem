@@ -12,122 +12,118 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [RouterModule, CommonModule, LoadingSpinnerComponent, FormsModule],
   template: `
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0">Payroll Review</h5>
-      </div>
-      <div class="card-body">
-        <!-- Progress Bar -->
-        <div class="mb-4">
-          <div class="progress" style="height: 1.2rem;">
-            <div
-              class="progress-bar bg-primary"
-              role="progressbar"
-              [style.width]="progress + '%'"
-            >
-              Step {{ step }} / 3
-            </div>
+    <div class="table-card">
+      <div class="section-title mb-3"><i class="fas fa-money-check-alt"></i> Payroll Review</div>
+      <!-- Progress Bar -->
+      <div class="mb-4">
+        <div class="progress" style="height: 1.2rem;">
+          <div
+            class="progress-bar bg-primary"
+            role="progressbar"
+            [style.width]="progress + '%'"
+          >
+            Step {{ step }} / 3
           </div>
         </div>
-        <!-- Step 1: Select Month -->
-        <div *ngIf="step === 1">
-          <label class="form-label">Select Month</label>
-          <select
-            class="form-select mb-4"
-            [(ngModel)]="selectedMonth"
-            name="month"
-          >
-            <option value="">-- Select Month --</option>
-            <option *ngFor="let m of months" [value]="m">{{ m }}</option>
-          </select>
-        </div>
-        <!-- Step 2: Payroll Summary -->
-        <div *ngIf="step === 2">
-          <ng-container *ngIf="filteredPayrolls.length > 0; else noPayroll">
-            <div class="table-responsive">
-              <table class="table table-striped mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th>Employee ID</th>
-                    <th>Month</th>
-                    <th>Gross Salary</th>
-                    <th>Net Salary</th>
-                    <th style="width: 120px;">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let payroll of filteredPayrolls">
-                    <td>{{ payroll.employeeId }}</td>
-                    <td>{{ payroll.month }}</td>
-                    <td>{{ payroll.grossSalary | currency }}</td>
-                    <td>{{ payroll.netSalary | currency }}</td>
-                    <td>
-                      <button
-                        class="btn btn-sm btn-info"
-                        (click)="viewPayslip(payroll.id)"
-                      >
-                        <i class="fas fa-file-invoice"></i> View Payslip
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </ng-container>
-          <ng-template #noPayroll>
-            <div class="alert alert-info">No payroll data for this month.</div>
-          </ng-template>
-        </div>
-        <!-- Step 3: Payslip -->
-        <div *ngIf="step === 3 && payslip">
-          <h6>
-            Payslip for Employee #{{ payslip.employeeId }} ({{ payslip.month }})
-          </h6>
-          <ul class="list-group mb-3">
-            <li class="list-group-item">
-              <b>Gross Salary:</b> {{ payslip.grossSalary | currency }}
-            </li>
-            <li class="list-group-item">
-              <b>Net Salary:</b> {{ payslip.netSalary | currency }}
-            </li>
-            <li class="list-group-item">
-              <b>Deductions:</b>
-              <ul>
-                <li *ngFor="let d of payslip.deductions">
-                  {{ d.label }}: {{ d.amount | currency }}
-                </li>
-              </ul>
-            </li>
-            <li class="list-group-item">
-              <b>Allowances:</b>
-              <ul>
-                <li *ngFor="let a of payslip.allowances">
-                  {{ a.label }}: {{ a.amount | currency }}
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-        <!-- Navigation Buttons -->
-        <div class="d-flex justify-content-between mt-4">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="prevStep()"
-            [disabled]="step === 1"
-          >
-            Back
-          </button>
-          <button
-            *ngIf="step < 3"
-            type="button"
-            class="btn btn-primary"
-            (click)="nextStep()"
-            [disabled]="!canProceed()"
-          >
-            Next
-          </button>
-        </div>
+      </div>
+      <!-- Step 1: Select Month -->
+      <div *ngIf="step === 1">
+        <label class="form-label">Select Month</label>
+        <select
+          class="form-select mb-4"
+          [(ngModel)]="selectedMonth"
+          name="month"
+        >
+          <option value="">-- Select Month --</option>
+          <option *ngFor="let m of months" [value]="m">{{ m }}</option>
+        </select>
+      </div>
+      <!-- Step 2: Payroll Summary -->
+      <div *ngIf="step === 2">
+        <ng-container *ngIf="filteredPayrolls.length > 0; else noPayroll">
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Employee ID</th>
+                  <th>Month</th>
+                  <th>Gross Salary</th>
+                  <th>Net Salary</th>
+                  <th style="width: 120px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let payroll of filteredPayrolls">
+                  <td>{{ payroll.employeeId }}</td>
+                  <td>{{ payroll.month }}</td>
+                  <td>{{ payroll.grossSalary | currency }}</td>
+                  <td>{{ payroll.netSalary | currency }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-info me-1 mb-1"
+                      (click)="viewPayslip(payroll.id)"
+                    >
+                      <i class="fas fa-file-invoice"></i> Payslip
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+        <ng-template #noPayroll>
+          <div class="alert alert-info">No payroll data for this month.</div>
+        </ng-template>
+      </div>
+      <!-- Step 3: Payslip -->
+      <div *ngIf="step === 3 && payslip">
+        <h6>
+          Payslip for Employee #{{ payslip.employeeId }} ({{ payslip.month }})
+        </h6>
+        <ul class="list-group mb-3">
+          <li class="list-group-item">
+            <b>Gross Salary:</b> {{ payslip.grossSalary | currency }}
+          </li>
+          <li class="list-group-item">
+            <b>Net Salary:</b> {{ payslip.netSalary | currency }}
+          </li>
+          <li class="list-group-item">
+            <b>Deductions:</b>
+            <ul>
+              <li *ngFor="let d of payslip.deductions">
+                {{ d.label }}: {{ d.amount | currency }}
+              </li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <b>Allowances:</b>
+            <ul>
+              <li *ngFor="let a of payslip.allowances">
+                {{ a.label }}: {{ a.amount | currency }}
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <!-- Navigation Buttons -->
+      <div class="d-flex justify-content-between mt-4">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="prevStep()"
+          [disabled]="step === 1"
+        >
+          Back
+        </button>
+        <button
+          *ngIf="step < 3"
+          type="button"
+          class="btn btn-primary"
+          (click)="nextStep()"
+          [disabled]="!canProceed()"
+        >
+          Next
+        </button>
       </div>
     </div>
   `,

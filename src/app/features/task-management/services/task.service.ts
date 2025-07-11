@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Task } from '../../../shared/models/task.model';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -19,6 +20,8 @@ export class TaskService {
   ];
   private tasksSubject = new BehaviorSubject<Task[]>(this.tasks);
 
+  constructor(private notification: NotificationService) {}
+
   getTasks(): Observable<Task[]> {
     return this.tasksSubject.asObservable();
   }
@@ -29,19 +32,22 @@ export class TaskService {
 
   addTask(task: Task): void {
     this.tasks.push(task);
-    this.tasksSubject.next(this.tasks);
+    this.tasksSubject.next(this.tasks.slice());
+    this.notification.show('success', 'Task added!');
   }
 
   updateTask(updatedTask: Task): void {
     const idx = this.tasks.findIndex(t => t.id === updatedTask.id);
     if (idx > -1) {
       this.tasks[idx] = updatedTask;
-      this.tasksSubject.next(this.tasks);
+      this.tasksSubject.next(this.tasks.slice());
+      this.notification.show('info', 'Task updated!');
     }
   }
 
   deleteTask(id: number): void {
     this.tasks = this.tasks.filter(task => task.id !== id);
-    this.tasksSubject.next(this.tasks);
+    this.tasksSubject.next(this.tasks.slice());
+    this.notification.show('danger', 'Task deleted!');
   }
 } 

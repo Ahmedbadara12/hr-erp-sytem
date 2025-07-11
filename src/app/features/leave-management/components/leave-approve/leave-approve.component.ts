@@ -5,20 +5,21 @@ import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { map } from 'rxjs/operators';
+import { AuthService, UserRole } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-leave-approve',
   standalone: true,
   imports: [CommonModule, LoadingSpinnerComponent],
   template: `
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0">Approve Leave Requests</h5>
+    <div *ngIf="role === 'HR' || role === 'Admin'" class="table-card">
+      <div class="section-title mb-3">
+        <i class="fas fa-calendar-check"></i> Approve Leave Requests
       </div>
-      <div class="card-body p-0">
-        <ng-container
-          *ngIf="pendingLeaves$ | async as pendingLeaves; else loading"
-        >
+      <ng-container
+        *ngIf="pendingLeaves$ | async as pendingLeaves; else loading"
+      >
+        <div class="table-responsive">
           <table class="table table-striped mb-0">
             <thead class="table-light">
               <tr>
@@ -43,13 +44,15 @@ import { map } from 'rxjs/operators';
                 </td>
                 <td>
                   <button
-                    class="btn btn-sm btn-success me-1"
+                    *ngIf="role === 'HR' || role === 'Admin'"
+                    class="btn btn-sm btn-success me-1 mb-1"
                     (click)="approve(leave.id)"
                   >
                     <i class="fas fa-check"></i> Approve
                   </button>
                   <button
-                    class="btn btn-sm btn-danger"
+                    *ngIf="role === 'HR' || role === 'Admin'"
+                    class="btn btn-sm btn-danger mb-1"
                     (click)="reject(leave.id)"
                   >
                     <i class="fas fa-times"></i> Reject
@@ -63,20 +66,22 @@ import { map } from 'rxjs/operators';
               </tr>
             </tbody>
           </table>
-        </ng-container>
-        <ng-template #loading>
-          <app-loading-spinner></app-loading-spinner>
-        </ng-template>
-      </div>
+        </div>
+      </ng-container>
+      <ng-template #loading>
+        <app-loading-spinner></app-loading-spinner>
+      </ng-template>
     </div>
   `,
 })
 export class LeaveApproveComponent implements OnInit {
   pendingLeaves$!: Observable<ILeaveRequest[]>;
+  role: UserRole | null = null;
 
-  constructor(private leaveService: LeaveService) {}
+  constructor(private leaveService: LeaveService, private auth: AuthService) {}
 
   ngOnInit() {
+    this.auth.getRole().subscribe(role => this.role = role);
     this.loadPending();
   }
 
@@ -88,12 +93,16 @@ export class LeaveApproveComponent implements OnInit {
   }
 
   approve(id: number) {
-    this.leaveService.approveLeave(id);
-    this.loadPending();
+    if (this.role === 'HR' || this.role === 'Admin') {
+      this.leaveService.approveLeave(id);
+      this.loadPending();
+    }
   }
 
   reject(id: number) {
-    this.leaveService.rejectLeave(id);
-    this.loadPending();
+    if (this.role === 'HR' || this.role === 'Admin') {
+      this.leaveService.rejectLeave(id);
+      this.loadPending();
+    }
   }
 }

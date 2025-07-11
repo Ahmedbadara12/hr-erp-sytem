@@ -28,40 +28,38 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
         ></app-task-form>
       </div>
     </div>
-    <div class="card w-100 mt-4">
-      <div
-        class="card-header d-flex justify-content-between align-items-center"
-      >
-        <span class="fs-5 fw-bold">Task List</span>
-        <span class="badge bg-secondary ms-2">Role: {{ role }}</span>
+    <div class="table-card mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <div class="section-title mb-0"><i class="fas fa-tasks"></i> Task List</div>
+        <span class="role-badge ms-2">Role: {{ role }}</span>
         <button
-          class="btn btn-primary btn-sm"
+          class="btn btn-odoo"
           (click)="openAddTask()"
           *ngIf="isAdminOrHR"
         >
           <i class="fas fa-plus me-1"></i> Add Task
         </button>
       </div>
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col-md-4">
-            <select class="form-select" [(ngModel)]="filterStatus">
-              <option value="">All Statuses</option>
-              <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-          <div class="col-md-4">
-            <input
-              class="form-control"
-              placeholder="Filter by assignee..."
-              [(ngModel)]="filterAssignee"
-            />
-          </div>
+      <div class="row mb-3">
+        <div class="col-md-4 mb-2 mb-md-0">
+          <select class="form-select" [(ngModel)]="filterStatus">
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
         </div>
-        <table class="table table-hover">
-          <thead>
+        <div class="col-md-4">
+          <input
+            class="form-control"
+            placeholder="Filter by assignee..."
+            [(ngModel)]="filterAssignee"
+          />
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
             <tr>
               <th>Title</th>
               <th>Assignee</th>
@@ -105,13 +103,13 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
               </td>
               <td *ngIf="isAdminOrHR">
                 <button
-                  class="btn btn-sm btn-outline-primary me-1"
+                  class="btn btn-sm btn-outline-primary me-1 mb-1"
                   (click)="openEditTask(task); $event.stopPropagation()"
                 >
                   <i class="fas fa-edit"></i>
                 </button>
                 <button
-                  class="btn btn-sm btn-outline-danger"
+                  class="btn btn-sm btn-outline-danger mb-1"
                   (click)="deleteTask(task.id); $event.stopPropagation()"
                 >
                   <i class="fas fa-trash"></i>
@@ -120,15 +118,14 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
             </tr>
           </tbody>
         </table>
-        <div
-          *ngIf="filteredTasks().length === 0"
-          class="text-center text-muted py-4"
-        >
-          No tasks found.
-        </div>
+      </div>
+      <div
+        *ngIf="filteredTasks().length === 0"
+        class="text-center text-muted py-4"
+      >
+        No tasks found.
       </div>
     </div>
-
     <!-- Add/Edit Task Modal -->
     <div
       class="modal fade show"
@@ -160,7 +157,6 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
       </div>
     </div>
     <div class="modal-backdrop fade show" *ngIf="showTaskForm"></div>
-
     <!-- Task Detail Modal -->
     <div
       class="modal fade show"

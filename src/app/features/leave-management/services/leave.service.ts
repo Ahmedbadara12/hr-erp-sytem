@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { ILeaveRequest } from '../../../shared/models/leave-request.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class LeaveService {
@@ -13,7 +14,7 @@ export class LeaveService {
       from: '2024-06-01',
       to: '2024-06-05',
       status: 'Approved',
-      reason: 'Family vacation'
+      reason: 'Family vacation',
     },
     {
       id: 2,
@@ -22,7 +23,7 @@ export class LeaveService {
       from: '2024-06-10',
       to: '2024-06-12',
       status: 'Pending',
-      reason: 'Flu'
+      reason: 'Flu',
     },
     {
       id: 3,
@@ -31,7 +32,7 @@ export class LeaveService {
       from: '2024-07-01',
       to: '2024-07-03',
       status: 'Rejected',
-      reason: 'Personal reasons'
+      reason: 'Personal reasons',
     },
     {
       id: 4,
@@ -40,7 +41,7 @@ export class LeaveService {
       from: '2024-07-10',
       to: '2024-07-15',
       status: 'Pending',
-      reason: 'Travel'
+      reason: 'Travel',
     },
     {
       id: 5,
@@ -49,14 +50,20 @@ export class LeaveService {
       from: '2024-08-01',
       to: '2024-08-02',
       status: 'Pending',
-      reason: 'Medical checkup'
-    }
+      reason: 'Medical checkup',
+    },
   ];
+  private leavesSubject = new BehaviorSubject<ILeaveRequest[]>(
+    this.mockLeaves.slice()
+  );
 
-  constructor(private auth: AuthService) {}
+  constructor(
+    private auth: AuthService,
+    private notification: NotificationService
+  ) {}
 
   getLeaves(): Observable<ILeaveRequest[]> {
-    return of(this.mockLeaves);
+    return this.leavesSubject.asObservable();
   }
 
   getLeaveById(id: number): Observable<ILeaveRequest | undefined> {
@@ -78,20 +85,36 @@ export class LeaveService {
       reason: leave.reason,
     };
     this.mockLeaves.push(newLeave);
+    this.leavesSubject.next(this.mockLeaves.slice());
+    this.notification.show('success', 'Leave request submitted!');
     return of(newLeave);
   }
 
   approveLeave(id: number): void {
+    const role = this.auth['getStoredRole'] ? this.auth['getStoredRole']() : null;
+    if (role !== 'HR' && role !== 'Admin') {
+      this.notification.show('danger', 'Only HR or Admin can approve leave!');
+      return;
+    }
     const leave = this.mockLeaves.find((l) => l.id === id);
     if (leave) {
       leave.status = 'Approved';
+      this.leavesSubject.next(this.mockLeaves.slice());
+      this.notification.show('success', 'Leave approved!');
     }
   }
 
   rejectLeave(id: number): void {
+    const role = this.auth['getStoredRole'] ? this.auth['getStoredRole']() : null;
+    if (role !== 'HR' && role !== 'Admin') {
+      this.notification.show('danger', 'Only HR or Admin can reject leave!');
+      return;
+    }
     const leave = this.mockLeaves.find((l) => l.id === id);
     if (leave) {
       leave.status = 'Rejected';
+      this.leavesSubject.next(this.mockLeaves.slice());
+      this.notification.show('danger', 'Leave rejected!');
     }
   }
 
@@ -102,6 +125,8 @@ export class LeaveService {
     const index = this.mockLeaves.findIndex((l) => l.id === id);
     if (index !== -1) {
       this.mockLeaves[index] = { ...this.mockLeaves[index], ...leave };
+      this.leavesSubject.next(this.mockLeaves.slice());
+      this.notification.show('info', 'Leave updated!');
       return of(this.mockLeaves[index]);
     }
     return of(undefined);
@@ -111,6 +136,8 @@ export class LeaveService {
     const index = this.mockLeaves.findIndex((l) => l.id === id);
     if (index !== -1) {
       this.mockLeaves.splice(index, 1);
+      this.leavesSubject.next(this.mockLeaves.slice());
+      this.notification.show('danger', 'Leave deleted!');
       return of(true);
     }
     return of(false);
