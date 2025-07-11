@@ -124,6 +124,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'not-authorized',
+    loadComponent: () =>
+      import(
+        './shared/components/not-authorized/not-authorized.component'
+      ).then((m) => m.NotAuthorizedComponent),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./shared/components/not-found/not-found.component').then(

@@ -24,7 +24,7 @@ export function authGuard(requiredRoles?: UserRole | UserRole[]): CanActivateFn 
             }
           });
           if (!allowed) {
-            router.navigate(['/login']);
+            router.navigate(['/not-authorized']);
             return false;
           }
         }
