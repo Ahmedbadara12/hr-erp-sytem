@@ -1,0 +1,11 @@
+{
+  "routes": [
+    "/employee",
+    "/employee/create",
+    "/leave",
+    "/login",
+    "/payroll",
+    "/profile",
+    "/tasks"
+  ]
+}
