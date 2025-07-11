@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { ILeaveRequest } from '../../../shared/models/leave-request.model';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -64,7 +64,10 @@ export class LeaveService {
   }
 
   addLeave(leave: Partial<ILeaveRequest>): Observable<ILeaveRequest> {
-    const employeeId = this.auth.getUserId() ?? 1;
+    const employeeId = this.auth.getUserId();
+    if (!employeeId) {
+      return throwError(() => new Error('No userId found for leave request.'));
+    }
     const newLeave: ILeaveRequest = {
       id: this.mockLeaves.length + 1,
       employeeId,

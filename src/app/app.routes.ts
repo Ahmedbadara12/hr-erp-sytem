@@ -37,6 +37,7 @@ export const routes: Routes = [
   },
   {
     path: 'leave',
+    canActivate: [authGuard('Employee')],
     loadComponent: () =>
       import(
         './features/leave-management/components/leave-list/leave-list.component'

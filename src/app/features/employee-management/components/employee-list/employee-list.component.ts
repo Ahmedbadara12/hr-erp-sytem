@@ -29,47 +29,49 @@ import { PLATFORM_ID } from '@angular/core';
       </div>
       <div class="card-body p-0">
         <ng-container *ngIf="employees$ | async as employees; else loading">
-          <table class="table table-striped mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Position</th>
-                <th>Department</th>
-                <th style="width: 120px;">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let emp of employees">
-                <td>{{ emp.name }}</td>
-                <td>{{ emp.email }}</td>
-                <td>{{ emp.position }}</td>
-                <td>{{ emp.department }}</td>
-                <td>
-                  <a
-                    class="btn btn-sm btn-info me-1"
-                    [routerLink]="['/employee', 'profile', emp.id]"
-                  >
-                    <i class="fas fa-user"></i>
-                  </a>
-                  <a
-                    class="btn btn-sm btn-warning me-1"
-                    [routerLink]="['/employee', 'edit', emp.id]"
-                    *ngIf="role === 'HR'"
-                  >
-                    <i class="fas fa-edit"></i>
-                  </a>
-                  <button
-                    class="btn btn-sm btn-danger"
-                    (click)="deleteEmployee(emp.id)"
-                    *ngIf="role === 'HR'"
-                  >
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Position</th>
+                  <th>Department</th>
+                  <th style="width: 120px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let emp of employees">
+                  <td>{{ emp.name }}</td>
+                  <td>{{ emp.email }}</td>
+                  <td>{{ emp.position }}</td>
+                  <td>{{ emp.department }}</td>
+                  <td>
+                    <a
+                      class="btn btn-sm btn-info me-1"
+                      [routerLink]="['/employee', 'profile', emp.id]"
+                    >
+                      <i class="fas fa-user"></i>
+                    </a>
+                    <a
+                      class="btn btn-sm btn-warning me-1"
+                      [routerLink]="['/employee', 'edit', emp.id]"
+                      *ngIf="role === 'HR'"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button
+                      class="btn btn-sm btn-danger"
+                      (click)="deleteEmployee(emp.id)"
+                      *ngIf="role === 'HR'"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </ng-container>
         <ng-template #loading>
           <app-loading-spinner></app-loading-spinner>

@@ -1,141 +1,53 @@
 # HR ERP System
 
-A web-based Human Resources ERP system built with Angular. This application manages employees, leave requests, and payroll with role-based access control for Admin, HR, and Employee users.
+A modern Angular-based HR ERP system with role-based access, employee/leave/payroll/task management, and a beautiful Bootstrap UI.
 
-## 🚀 Features
+## Features
+- **Role-based access:** Admin, HR, Employee, Project Manager
+- **Employee, Leave, Payroll, and Task Management**
+- **Bootstrap 5 UI:** Modern, clean, and consistent
+- **Responsive Design:** Mobile-friendly layout, responsive sidebar/topbar, and adaptive tables
+- **SSR/Prerender-ready:** Works with Angular SSR and static hosting (Netlify, Vercel)
 
-- **Employee Management**
-  - Add, edit, view, and delete employee records
-  - Fields: name, email, position, department, phone, address, date of birth, hire date
-- **Leave Management**
-  - Employees can apply for leave
-  - HR can approve or reject leave requests
-- **Payroll Management**
-  - Admin users can view payroll data and payslips
-- **Role-Based Access**
-  - 🔐 **Admin:** Access to Payroll only
-  - 👩‍💼 **HR:** Manage Employees and Leave
-  - 👨‍💻 **Employee:** Manage own data, apply for leave
-- **Responsive UI**
-  - Built using Bootstrap 5 for a clean and modern UX
+## Responsive Design
 
-## 👥 User Roles Overview
+The app is fully responsive and mobile-friendly:
 
-| Role     | Access                              |
-| -------- | ----------------------------------- |
-| Admin    | Payroll module only                 |
-| HR       | Full Employee and Leave mgmt        |
-| Employee | View/edit own data, apply for leave |
+- **Bootstrap Grid & Utilities:** All layouts use Bootstrap's grid system and responsive utility classes for adaptive spacing, alignment, and visibility.
+- **Responsive Sidebar & Topbar:**
+  - On desktop, a sidebar is shown for navigation.
+  - On mobile, the sidebar collapses into an off-canvas menu, toggled by a hamburger button in the top navbar.
+  - The top navbar is always visible on mobile for quick access.
+- **Tables:** All main tables (e.g., Employee List) are wrapped in `.table-responsive` for horizontal scrolling on small screens.
+- **Cards & Forms:** Use full width on mobile and are centered with appropriate spacing.
+- **Tested on multiple screen sizes** for usability and appearance.
 
-> **Note:** Authentication is mocked for demo purposes – roles are selected manually at login.
+## Getting Started
 
-## 🧰 Tech Stack
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+2. **Run locally:**
+   ```bash
+   ng serve
+   ```
+3. **Build for production:**
+   ```bash
+   ng build
+   ```
+4. **SSR/Prerender:**
+   ```bash
+   ng run hr-erp:prerender
+   ```
 
-- **Frontend:** Angular 16+
-- **UI Framework:** Bootstrap 5
-- **Language:** TypeScript
-- **Testing:** Jasmine + Karma (unit), Protractor/Cypress (e2e)
+## Deployment
+- **Netlify:** Set publish directory to `dist/hr-erp/browser` and ensure `_redirects` is present for SPA routing.
+- **Vercel:** Use the static output or SSR as needed. The app is SSR-safe and guards against browser-only APIs.
 
-## 📸 Screenshots
-
-| HR Dashboard                             | Leave Application                         |
-| ---------------------------------------- | ----------------------------------------- |
-| ![HR View](screenshots/hr-dashboard.png) | ![Leave Form](screenshots/leave-form.png) |
-
-## 🌐 Live Demo
-
-[View Demo](https://your-app-url.com)
-
-## 📝 Project Scope
-
-- **Frontend-only:** This project is a frontend Angular SPA. All data is currently managed in-memory (mock data/services). No backend/API integration is included by default.
-- **Backend/API:** To connect to a real backend, update the services in `src/app/features/*/services/` to use your API endpoints.
-
-## 🏗️ Project Structure
-
-```text
-src/
-├── app/
-│   ├── core/            # Auth, guards, interceptors
-│   ├── features/
-│   │   ├── employee-management/
-│   │   ├── leave-management/
-│   │   └── payroll/
-│   ├── shared/          # Reusable components and models
-│   └── app.routes.ts
-```
-
-## ⚙️ Getting Started
-
-### Prerequisites
-
-- Node.js (v16+ recommended)
-- npm (v8+ recommended)
-
-### Installation
-
-```bash
-git clone <your-repo-url>
-cd hr-erp
-npm install
-```
-
-### Running the Development Server
-
-```bash
-ng serve
-```
-
-Visit [http://localhost:4200](http://localhost:4200) in your browser.
-
-### Build for Production
-
-```bash
-ng build
-```
-
-The build artifacts will be stored in the `dist/` directory.
-
-## 💡 Usage
-
-- **Login:** On the login screen, users select a predefined role (Admin, HR, Employee) from a dropdown (for demo purposes). This simulates authentication.
-- **Navigation:**
-  - Admin: Sees only Payroll in the menu.
-  - HR: Sees Employees and Leave.
-  - Employee: Sees Employees and Leave.
-- **Employee Management:** Add, edit, and view employee details (HR and Employee roles).
-- **Leave Management:** Apply for and approve leave (HR and Employee roles).
-- **Payroll:** View payroll and payslips (Admin role).
-
-## 🛠️ Customization
-
-- **Add More Fields:** Update `IEmployee` in `src/app/shared/models/employee.model.ts` and the employee form/profile components.
-- **Add More Roles:** Update `UserRole` in `src/app/core/services/auth.service.ts` and adjust guards/routes as needed.
-- **UI Customization:** Modify Bootstrap classes in component templates and `src/styles.scss`.
-
-## 🔒 Security/Access Note
-
-This demo uses mocked authentication for simplicity. For production, integrate real authentication (e.g., JWT, OAuth) and secure all API endpoints and routes accordingly.
-
-## 🤝 Contributing
-
-1. Fork the repo
-2. Create your branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -m 'Add feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Create a pull request
-
-## 🧪 Testing
-
-- Run unit tests:
-  ```bash
-  ng test
-  ```
-- Run end-to-end tests:
-  ```bash
-  ng e2e
-  ```
+## Customization
+- **Bootstrap theming:** Customize `src/styles.scss` for colors, spacing, and breakpoints.
+- **Add new features:** Use the provided structure in `src/app/features/` for new modules/components.
 
 ## License
-
-MIT (or your chosen license)
+MIT

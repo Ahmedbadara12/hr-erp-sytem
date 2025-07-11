@@ -1,12 +1,83 @@
+<nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm d-md-none">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand fs-4 fw-bold text-primary d-flex align-items-center" href="#">
+      <i class="fas fa-cubes me-2"></i> HR ERP
+    </a>
+    <span class="badge bg-secondary ms-auto">{{ role$ | async }}</span>
+  </div>
+</nav>
+
 <div class="d-flex min-vh-100">
   <!-- Sidebar Navigation (only if logged in) -->
   <ng-container *ngIf="isLoggedIn$ | async">
-    <nav class="sidebar bg-white shadow-sm d-flex flex-column align-items-center py-4 px-2" style="width: 220px; min-width: 220px;">
+    <!-- Offcanvas Sidebar for mobile -->
+    <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body p-0">
+        <ul class="nav flex-column w-100">
+          <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Admin'">
+            <a class="nav-link d-flex align-items-center" routerLink="/payroll" routerLinkActive="active">
+              <i class="fas fa-money-check-alt me-2"></i> Payroll
+            </a>
+          </li>
+          <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Admin' || (role$ | async) === 'HR' || (role$ | async) === 'Employee'">
+            <a class="nav-link d-flex align-items-center" routerLink="/tasks" routerLinkActive="active">
+              <i class="fas fa-clipboard-list me-2"></i> Tasks
+            </a>
+          </li>
+          <li class="nav-item mb-2" *ngIf="(role$ | async) === 'HR'">
+            <a class="nav-link d-flex align-items-center" routerLink="/employee" routerLinkActive="active">
+              <i class="fas fa-users me-2"></i> Employees
+            </a>
+          </li>
+          <!-- Leave link for Employee only (mobile) -->
+          <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Employee'">
+            <a class="nav-link d-flex align-items-center" routerLink="/leave" routerLinkActive="active">
+              <i class="fas fa-calendar-alt me-2"></i> Leave
+            </a>
+          </li>
+          <li class="nav-item mb-2" *ngIf="(role$ | async) === 'ProjectManager'">
+            <a class="nav-link d-flex align-items-center" routerLink="/employee" routerLinkActive="active">
+              <i class="fas fa-users me-2"></i> Employees
+            </a>
+          </li>
+          <li class="nav-item mb-2" *ngIf="(role$ | async) === 'ProjectManager'">
+            <a class="nav-link d-flex align-items-center" routerLink="/tasks" routerLinkActive="active">
+              <i class="fas fa-clipboard-list me-2"></i> Tasks
+            </a>
+          </li>
+          <li class="nav-item mb-2" *ngIf="(role$ | async) === 'ProjectManager'">
+            <a class="nav-link d-flex align-items-center" routerLink="/leave" routerLinkActive="active">
+              <i class="fas fa-calendar-alt me-2"></i> Leave
+            </a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link d-flex align-items-center" routerLink="/profile" routerLinkActive="active">
+              <i class="fas fa-user-circle me-2"></i> Profile
+            </a>
+          </li>
+          <li class="nav-item mt-3">
+            <button class="btn btn-outline-danger w-100" (click)="logout()">
+              <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- Desktop Sidebar -->
+    <nav class="sidebar bg-white shadow-sm d-none d-md-flex flex-column align-items-center py-4 px-2" style="width: 220px; min-width: 220px;">
       <div class="mb-4">
         <a class="navbar-brand fs-4 fw-bold text-primary d-flex align-items-center" href="#">
           <i class="fas fa-cubes me-2"></i> HR ERP
         </a>
       </div>
+      <span class="badge bg-secondary mb-3">{{ role$ | async }}</span>
       <ul class="nav flex-column w-100">
         <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Admin'">
           <a class="nav-link d-flex align-items-center" routerLink="/payroll" routerLinkActive="active">
@@ -28,6 +99,12 @@
             <i class="fas fa-calendar-alt me-2"></i> Leave
           </a>
         </li>
+        <!-- Leave link for Employee only (desktop) -->
+        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Employee'">
+          <a class="nav-link d-flex align-items-center" routerLink="/leave" routerLinkActive="active">
+            <i class="fas fa-calendar-alt me-2"></i> Leave
+          </a>
+        </li>
         <li class="nav-item mb-2" *ngIf="(role$ | async) === 'ProjectManager'">
           <a class="nav-link d-flex align-items-center" routerLink="/employee" routerLinkActive="active">
             <i class="fas fa-users me-2"></i> Employees
@@ -43,46 +120,24 @@
             <i class="fas fa-calendar-alt me-2"></i> Leave
           </a>
         </li>
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Employee'">
-          <a class="nav-link d-flex align-items-center" routerLink="/employee/profile/{{userId}}" routerLinkActive="active">
-            <i class="fas fa-user me-2"></i> My Info
+        <li class="nav-item mb-2">
+          <a class="nav-link d-flex align-items-center" routerLink="/profile" routerLinkActive="active">
+            <i class="fas fa-user-circle me-2"></i> Profile
           </a>
         </li>
-      </ul>
-      <div class="mt-auto w-100">
-        <ul class="nav flex-column w-100 mb-2">
-          <li class="nav-item">
-            <a class="nav-link d-flex align-items-center" routerLink="/profile" routerLinkActive="active">
-              <i class="fas fa-user me-2"></i> Profile
-            </a>
-          </li>
-        </ul>
-        <div class="border-top pt-3">
-          <div class="d-flex align-items-center">
-            <i class="fas fa-user-circle fa-lg me-2 text-secondary"></i>
-            <span class="fw-semibold">{{ role$ | async }}</span>
-          </div>
-          <button class="btn btn-outline-secondary btn-sm w-100 mt-3" (click)="logout()">
-            <i class="fas fa-sign-out-alt me-1"></i> Logout
+        <li class="nav-item mt-3">
+          <button class="btn btn-outline-danger w-100" (click)="logout()">
+            <i class="fas fa-sign-out-alt me-2"></i> Logout
           </button>
-        </div>
-      </div>
+        </li>
+      </ul>
     </nav>
   </ng-container>
 
-  <!-- Main Content Area -->
-  <div class="flex-grow-1 bg-light d-flex flex-column">
-    <!-- Top Bar -->
-    <nav class="navbar navbar-light bg-white shadow-sm px-4 py-2" style="min-height: 56px;">
-      <div class="container-fluid justify-content-end">
-        <span class="navbar-text fw-semibold text-secondary">
-          Welcome to HR ERP
-          <span *ngIf="role$ | async as role" class="badge bg-primary ms-2">{{ role }}</span>
-        </span>
-      </div>
-    </nav>
-    <div class="container flex-grow-1 d-flex flex-column justify-content-center align-items-center" [ngClass]="{'justify-content-center align-items-center': !(isLoggedIn$ | async)}">
+  <!-- Main Content -->
+  <div class="flex-grow-1 d-flex flex-column" style="min-width: 0;">
+    <main class="flex-grow-1 p-3">
       <router-outlet></router-outlet>
-    </div>
+    </main>
   </div>
 </div>

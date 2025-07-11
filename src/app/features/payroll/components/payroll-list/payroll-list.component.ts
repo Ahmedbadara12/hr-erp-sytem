@@ -44,38 +44,38 @@ import { FormsModule } from '@angular/forms';
         <!-- Step 2: Payroll Summary -->
         <div *ngIf="step === 2">
           <ng-container *ngIf="filteredPayrolls.length > 0; else noPayroll">
-            <table class="table table-striped mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>Employee ID</th>
-                  <th>Month</th>
-                  <th>Gross Salary</th>
-                  <th>Net Salary</th>
-                  <th style="width: 120px;">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let payroll of filteredPayrolls">
-                  <td>{{ payroll.employeeId }}</td>
-                  <td>{{ payroll.month }}</td>
-                  <td>{{ payroll.grossSalary | currency }}</td>
-                  <td>{{ payroll.netSalary | currency }}</td>
-                  <td>
-                    <button
-                      class="btn btn-sm btn-info"
-                      (click)="viewPayslip(payroll.id)"
-                    >
-                      <i class="fas fa-file-invoice"></i> Payslip
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="table-responsive">
+              <table class="table table-striped mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Employee ID</th>
+                    <th>Month</th>
+                    <th>Gross Salary</th>
+                    <th>Net Salary</th>
+                    <th style="width: 120px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let payroll of filteredPayrolls">
+                    <td>{{ payroll.employeeId }}</td>
+                    <td>{{ payroll.month }}</td>
+                    <td>{{ payroll.grossSalary | currency }}</td>
+                    <td>{{ payroll.netSalary | currency }}</td>
+                    <td>
+                      <button
+                        class="btn btn-sm btn-info"
+                        (click)="viewPayslip(payroll.id)"
+                      >
+                        <i class="fas fa-file-invoice"></i> View Payslip
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </ng-container>
           <ng-template #noPayroll>
-            <div class="alert alert-info mt-3">
-              No payroll data for this month.
-            </div>
+            <div class="alert alert-info">No payroll data for this month.</div>
           </ng-template>
         </div>
         <!-- Step 3: Payslip -->
