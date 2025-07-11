@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { EmployeeService } from '../../services/employee.service';
 import { IEmployee } from '../../../../shared/models/employee.model';
 import { Observable } from 'rxjs';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
 
 @Component({
   selector: 'app-employee-profile',
@@ -47,10 +48,15 @@ export class EmployeeProfileComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
+    if (!isPlatformBrowser(this.platformId)) {
+      // On the server, do nothing (avoid SSR issues)
+      return;
+    }
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
