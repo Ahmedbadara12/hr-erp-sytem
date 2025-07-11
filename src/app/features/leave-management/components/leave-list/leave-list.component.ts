@@ -68,6 +68,7 @@ import { PLATFORM_ID } from '@angular/core';
                     <button
                       *ngIf="(role$ | async) === 'Employee' && leave.status === 'Pending'"
                       class="btn btn-sm btn-danger me-1 mb-1"
+                      aria-label="Delete leave request"
                       title="Delete"
                       (click)="deleteLeave(leave.id)"
                     >
@@ -76,6 +77,7 @@ import { PLATFORM_ID } from '@angular/core';
                     <button
                       *ngIf="(role$ | async) === 'HR' && leave.status === 'Pending'"
                       class="btn btn-sm btn-success me-1 mb-1"
+                      aria-label="Approve leave request"
                       title="Approve"
                       (click)="approveLeave(leave.id)"
                     >
@@ -84,6 +86,7 @@ import { PLATFORM_ID } from '@angular/core';
                     <button
                       *ngIf="(role$ | async) === 'HR' && leave.status === 'Pending'"
                       class="btn btn-sm btn-danger me-1 mb-1"
+                      aria-label="Reject leave request"
                       title="Reject"
                       (click)="rejectLeave(leave.id)"
                     >
@@ -92,6 +95,7 @@ import { PLATFORM_ID } from '@angular/core';
                     <button
                       *ngIf="(role$ | async) === 'HR'"
                       class="btn btn-sm btn-outline-danger mb-1"
+                      aria-label="Delete leave request"
                       title="Delete"
                       (click)="deleteLeave(leave.id)"
                     >
@@ -144,6 +148,7 @@ import { PLATFORM_ID } from '@angular/core';
                     <button
                       *ngIf="(role$ | async) === 'Employee' && leave.status === 'Pending'"
                       class="btn btn-danger btn-sm w-100"
+                      aria-label="Delete leave request"
                       (click)="deleteLeave(leave.id)"
                     >
                       <i class="fas fa-trash"></i> Delete
@@ -151,6 +156,7 @@ import { PLATFORM_ID } from '@angular/core';
                     <button
                       *ngIf="(role$ | async) === 'HR' && leave.status === 'Pending'"
                       class="btn btn-success btn-sm w-100"
+                      aria-label="Approve leave request"
                       (click)="approveLeave(leave.id)"
                     >
                       <i class="fas fa-check"></i> Approve
@@ -158,6 +164,7 @@ import { PLATFORM_ID } from '@angular/core';
                     <button
                       *ngIf="(role$ | async) === 'HR' && leave.status === 'Pending'"
                       class="btn btn-danger btn-sm w-100"
+                      aria-label="Reject leave request"
                       (click)="rejectLeave(leave.id)"
                     >
                       <i class="fas fa-times"></i> Reject
@@ -165,6 +172,7 @@ import { PLATFORM_ID } from '@angular/core';
                     <button
                       *ngIf="(role$ | async) === 'HR'"
                       class="btn btn-outline-danger btn-sm w-100"
+                      aria-label="Delete leave request"
                       (click)="deleteLeave(leave.id)"
                     >
                       <i class="fas fa-trash"></i> Delete

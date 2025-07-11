@@ -27,6 +27,7 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
               <div
                 class="progress-bar bg-primary"
                 role="progressbar"
+                aria-label="Leave application progress"
                 [style.width]="progress + '%'"
               >
                 Step {{ step }} / 4

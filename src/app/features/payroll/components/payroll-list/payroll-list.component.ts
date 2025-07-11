@@ -13,7 +13,9 @@ import { FormsModule } from '@angular/forms';
   imports: [RouterModule, CommonModule, LoadingSpinnerComponent, FormsModule],
   template: `
     <div class="table-card">
-      <div class="section-title mb-3"><i class="fas fa-money-check-alt"></i> Payroll Review</div>
+      <div class="section-title mb-3">
+        <i class="fas fa-money-check-alt"></i> Payroll Review
+      </div>
       <!-- Progress Bar -->
       <div class="mb-4">
         <div class="progress" style="height: 1.2rem;">
@@ -41,34 +43,108 @@ import { FormsModule } from '@angular/forms';
       <!-- Step 2: Payroll Summary -->
       <div *ngIf="step === 2">
         <ng-container *ngIf="filteredPayrolls.length > 0; else noPayroll">
-          <div class="table-responsive">
-            <table class="table table-striped mb-0">
+          <div class="table-responsive d-none d-sm-block">
+            <table
+              class="table table-striped table-responsive payroll-table payroll-table-narrow mb-0 align-middle"
+            >
               <thead class="table-light">
                 <tr>
-                  <th>Employee ID</th>
-                  <th>Month</th>
-                  <th>Gross Salary</th>
-                  <th>Net Salary</th>
-                  <th style="width: 120px;">Actions</th>
+                  <th class="nowrap">Employee ID</th>
+                  <th class="nowrap">Month</th>
+                  <th class="text-end nowrap">Gross Salary</th>
+                  <th class="text-end nowrap">Net Salary</th>
+                  <th class="text-center nowrap" style="width: 110px;">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let payroll of filteredPayrolls">
-                  <td>{{ payroll.employeeId }}</td>
-                  <td>{{ payroll.month }}</td>
-                  <td>{{ payroll.grossSalary | currency }}</td>
-                  <td>{{ payroll.netSalary | currency }}</td>
-                  <td>
-                    <button
-                      class="btn btn-sm btn-info me-1 mb-1"
-                      (click)="viewPayslip(payroll.id)"
+                  <td class="fw-semibold nowrap">{{ payroll.employeeId }}</td>
+                  <td class="nowrap">
+                    <span class="badge bg-primary">{{ payroll.month }}</span>
+                  </td>
+                  <td class="text-end nowrap">
+                    {{ payroll.grossSalary | currency }}
+                  </td>
+                  <td class="text-end nowrap">
+                    {{ payroll.netSalary | currency }}
+                  </td>
+                  <td class="text-center nowrap" style="width: 110px;">
+                    <div
+                      class="d-flex justify-content-center align-items-center w-100"
                     >
-                      <i class="fas fa-file-invoice"></i> Payslip
-                    </button>
+                      <button
+                        class="btn btn-outline-primary btn-sm payroll-action-btn w-100"
+                        (click)="viewPayslip(payroll.id)"
+                        [attr.aria-label]="
+                          'View payslip for employee ' + payroll.employeeId
+                        "
+                        style="white-space: nowrap; min-width: 0;"
+                      >
+                        <i class="fas fa-file-invoice me-1"></i> Payslip
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Mobile Timeline Layout -->
+          <div class="timeline-mobile d-block d-sm-none">
+            <div
+              *ngFor="let payroll of filteredPayrolls; let i = index"
+              class="timeline-step position-relative mb-4"
+            >
+              <div
+                class="timeline-dot position-absolute top-0 start-0 translate-middle"
+              ></div>
+              <div
+                class="timeline-line position-absolute start-0"
+                *ngIf="i < filteredPayrolls.length - 1"
+              ></div>
+              <div class="ms-4 ps-2 pb-2">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="fw-bold text-primary" style="font-size:1.1em;"
+                    >Employee #{{ payroll.employeeId }}</span
+                  >
+                  <span
+                    class="badge bg-primary"
+                    style="font-size:0.98em; padding:0.4em 1em;"
+                    >{{ payroll.month }}</span
+                  >
+                </div>
+                <div class="small text-muted mb-1">
+                  <i class="fas fa-money-bill-wave me-1"></i>
+                  Gross:
+                  <span class="fw-semibold">{{
+                    payroll.grossSalary | currency
+                  }}</span>
+                </div>
+                <div class="small text-muted mb-1">
+                  <i class="fas fa-wallet me-1"></i>
+                  Net:
+                  <span class="fw-semibold">{{
+                    payroll.netSalary | currency
+                  }}</span>
+                </div>
+                <div class="d-flex flex-column gap-2 mt-2">
+                  <div
+                    class="d-flex flex-wrap justify-content-center align-items-center gap-2 payroll-action-group"
+                  >
+                    <button
+                      class="btn btn-outline-primary btn-sm payroll-action-btn"
+                      (click)="viewPayslip(payroll.id)"
+                      [attr.aria-label]="
+                        'View payslip for employee ' + payroll.employeeId
+                      "
+                    >
+                      <i class="fas fa-file-invoice me-1"></i> Payslip
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </ng-container>
         <ng-template #noPayroll>
