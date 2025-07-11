@@ -804,3 +804,50 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     font-size: 0.95rem;
   }
 }
+
+// Mobile top navbar improvements
+@media (max-width: 767.98px) {
+  nav.navbar.d-md-none {
+    background: #0d6efd !important; // Bootstrap primary
+    border-radius: 0 0 1rem 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    color: #fff;
+    .navbar-brand, .navbar-brand:visited {
+      color: #fff !important;
+      font-size: 1.3rem;
+      letter-spacing: 0.5px;
+    }
+    .navbar-toggler {
+      border: none;
+      background: rgba(255,255,255,0.15);
+    }
+    .navbar-toggler-icon {
+      filter: invert(1);
+    }
+    .role-badge {
+      background: #fff;
+      color: #0d6efd;
+      border-radius: 0.5rem;
+      padding: 0.15em 0.7em;
+      font-size: 0.95em;
+      font-weight: 600;
+      margin-top: 0.2em;
+      display: inline-block;
+    }
+    .text-white, .text-white * {
+      color: #fff !important;
+    }
+    .small.text-white.fw-bold {
+      text-shadow: 0 1px 2px rgba(0,0,0,0.08);
+      margin-top: 0.2em;
+    }
+    .container-fluid {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+    .px-2 {
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+    }
+  }
+}
