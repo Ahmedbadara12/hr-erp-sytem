@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { EmployeeService } from '../../services/employee.service';
 import { IEmployee } from '../../../../shared/models/employee.model';
 import { Observable } from 'rxjs';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { AuthService, UserRole } from '../../../../core/services/auth.service';
 import { Router } from '@angular/router';
+import { PLATFORM_ID } from '@angular/core';
 
 @Component({
   selector: 'app-employee-list',
@@ -92,15 +93,24 @@ export class EmployeeListComponent implements OnInit {
   constructor(
     private employeeService: EmployeeService,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
+    if (!isPlatformBrowser(this.platformId)) {
+      // On the server, do nothing (avoid SSR issues)
+      return;
+    }
     this.auth.getRole().subscribe((role) => {
       this.role = role;
       if (role !== 'HR') {
         const userId = this.auth.getUserId();
-        this.router.navigate(['/employee/profile', userId]);
+        if (userId) {
+          this.router.navigate(['/employee/profile', userId]);
+        } else {
+          this.router.navigate(['/login']);
+        }
       } else {
         this.employees$ = this.employeeService.getEmployees();
       }
