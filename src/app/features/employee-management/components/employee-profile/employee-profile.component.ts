@@ -4,12 +4,11 @@ import { EmployeeService } from '../../services/employee.service';
 import { IEmployee } from '../../../../shared/models/employee.model';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-employee-profile',
   standalone: true,
-  imports: [CommonModule, RouterModule, LoadingSpinnerComponent],
+  imports: [CommonModule, RouterModule],
   template: `
     <div class="card" *ngIf="employee$ | async as employee; else loading">
       <div class="card-header">
