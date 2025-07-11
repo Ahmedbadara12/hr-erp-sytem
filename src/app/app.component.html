@@ -1,26 +1,35 @@
-<nav class="navbar navbar-expand-md navbar-light d-md-none">
-  <div class="container-fluid">
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="offcanvas"
-      data-bs-target="#sidebarOffcanvas"
-      aria-controls="sidebarOffcanvas"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="d-flex flex-column align-items-start w-100">
-      <a class="navbar-brand fs-4 fw-bold d-flex align-items-center" href="#">
-        <i class="fas fa-cubes me-2"></i> HR ERP
-      </a>
-      <div
-        *ngIf="isLoggedIn$ | async"
-        class="text-center small text-white fw-bold w-100 mt-1 ps-1"
+<nav class="navbar navbar-expand-md navbar-light d-md-none py-2">
+  <div class="container-fluid flex-column align-items-stretch p-0">
+    <div class="d-flex w-100 align-items-center justify-content-between px-2">
+      <button
+        class="navbar-toggler ms-0"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#sidebarOffcanvas"
+        aria-controls="sidebarOffcanvas"
       >
-        Welcome, {{ username }}!
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div
+        class="flex-grow-1 d-flex flex-column align-items-center justify-content-center"
+      >
+        <a
+          class="navbar-brand fs-4 fw-bold d-flex align-items-center justify-content-center mb-0"
+          href="#"
+        >
+          <i class="fas fa-cubes me-2"></i> HR ERP
+        </a>
+        <div
+          *ngIf="isLoggedIn$ | async"
+          class="text-center small text-white fw-bold w-100 mt-1"
+        >
+          Welcome, {{ username }}!
+        </div>
+        <span class="role-badge mt-1">{{ role$ | async }}</span>
       </div>
+      <div style="width: 40px"></div>
+      <!-- Spacer to balance toggler -->
     </div>
-    <span class="role-badge ms-auto">{{ role$ | async }}</span>
   </div>
 </nav>
 

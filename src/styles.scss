@@ -522,6 +522,148 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 1.08em;
   padding: 1.1em 1.3em;
 }
+// Enhanced table responsiveness
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 575.98px) {
+  .table-responsive {
+    width: 100vw;
+    margin-left: -12px;
+    margin-right: -12px;
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.08);
+    border-radius: 0.7em;
+    overflow-x: auto;
+  }
+  .table th,
+  .table td {
+    padding: 0.28em 0.18em;
+    font-size: 0.88em;
+    min-width: 80px;
+    word-break: break-word;
+  }
+  .table {
+    font-size: 0.88em;
+    min-width: 600px;
+  }
+  .table thead th {
+    position: sticky;
+    top: 0;
+    background: #ede9fe;
+    z-index: 2;
+    font-size: 0.93em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+  }
+  td > .btn,
+  td > .btn-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.4em;
+    margin-right: 0 !important;
+    margin-bottom: 0 !important;
+    width: 100%;
+  }
+  .btn,
+  .btn-sm {
+    font-size: 1.08em;
+    padding: 0.7em 0.7em;
+    border-radius: 0.7em;
+    min-width: 90px;
+    margin-bottom: 0.3em;
+    margin-right: 0;
+  }
+  .card {
+    border-radius: 1.1em;
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.10);
+    margin-bottom: 1.2em;
+    padding: 0.7em 0.7em 0.5em 0.7em;
+  }
+  .card-body {
+    padding: 0.7em 0.5em 0.5em 0.5em;
+  }
+  .card .btn,
+  .card .btn-sm {
+    width: 100%;
+    margin-bottom: 0.4em;
+    font-size: 1.08em;
+    padding: 0.7em 0.7em;
+    border-radius: 0.7em;
+  }
+  .card .btn:last-child,
+  .card .btn-sm:last-child {
+    margin-bottom: 0;
+  }
+  .card .fw-bold {
+    font-size: 1.08em;
+  }
+  .card .badge {
+    font-size: 0.98em;
+    padding: 0.4em 1em;
+  }
+  .card .text-end {
+    text-align: right;
+  }
+  .card .text-secondary {
+    font-size: 0.97em;
+  }
+  .timeline-mobile {
+    position: relative;
+    margin-left: 0.7em;
+    margin-right: 0.7em;
+  }
+  .timeline-step {
+    padding-left: 1.7em;
+    position: relative;
+    min-height: 3.5em;
+  }
+  .timeline-dot {
+    width: 1.1em;
+    height: 1.1em;
+    background: #7c3aed;
+    border-radius: 50%;
+    border: 2px solid #ede9fe;
+    left: 0;
+    top: 1.1em;
+    z-index: 2;
+  }
+  .timeline-line {
+    width: 0.22em;
+    background: linear-gradient(180deg, #a78bfa 0%, #7c3aed 100%);
+    left: 0.42em;
+    top: 2.1em;
+    bottom: 0;
+    position: absolute;
+    z-index: 1;
+    border-radius: 1em;
+  }
+  .timeline-step .card-body, .timeline-step .ms-4 {
+    background: #fff;
+    border-radius: 1em;
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.10);
+    padding: 1em 1em 0.7em 1em;
+    margin-bottom: 0.2em;
+  }
+  .timeline-step .fw-bold {
+    font-size: 1.08em;
+  }
+  .timeline-step .badge {
+    font-size: 0.98em;
+    padding: 0.4em 1em;
+  }
+  .timeline-step .btn, .timeline-step .btn-sm {
+    width: 100%;
+    margin-bottom: 0.4em;
+    font-size: 1.08em;
+    padding: 0.7em 0.7em;
+    border-radius: 0.7em;
+  }
+  .timeline-step .btn:last-child, .timeline-step .btn-sm:last-child {
+    margin-bottom: 0;
+  }
+}
 // --- RESPONSIVE LAYOUTS ---
 @media (max-width: 767.98px) {
   .sidebar {

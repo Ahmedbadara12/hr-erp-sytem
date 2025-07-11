@@ -57,7 +57,7 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
           />
         </div>
       </div>
-      <div class="table-responsive">
+      <div class="table-responsive d-none d-sm-block">
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
@@ -119,11 +119,63 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
           </tbody>
         </table>
       </div>
-      <div
-        *ngIf="filteredTasks().length === 0"
-        class="text-center text-muted py-4"
-      >
-        No tasks found.
+      <!-- Mobile Timeline Layout -->
+      <div class="timeline-mobile d-block d-sm-none">
+        <div *ngFor="let task of filteredTasks(); let i = index" class="timeline-step position-relative mb-4">
+          <div class="timeline-dot position-absolute top-0 start-0 translate-middle"></div>
+          <div class="timeline-line position-absolute start-0" *ngIf="i < filteredTasks().length - 1"></div>
+          <div class="ms-4 ps-2 pb-2">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="fw-bold text-primary" style="font-size:1.1em;">{{ task.title }}</span>
+              <span class="badge"
+                [ngClass]="{
+                  'bg-warning text-dark': task.status === 'Pending',
+                  'bg-info text-dark': task.status === 'In Progress',
+                  'bg-success': task.status === 'Completed'
+                }"
+                style="font-size:0.98em; padding:0.4em 1em;"
+                >{{ task.status }}</span
+              >
+            </div>
+            <div class="small text-muted mb-1">
+              <i class="fas fa-calendar-alt me-1"></i>
+              <span>{{ task.dueDate }}</span>
+            </div>
+            <div class="mb-1 small text-secondary">
+              <i class="fas fa-user me-1"></i>Assignee: {{ task.assignee }}
+            </div>
+            <div class="mb-2 small text-muted">
+              <i class="fas fa-bolt me-1"></i>Priority:
+              <span class="badge ms-1"
+                [ngClass]="{
+                  'bg-danger': task.priority === 'High',
+                  'bg-secondary': task.priority === 'Medium',
+                  'bg-light text-dark': task.priority === 'Low'
+                }"
+                >{{ task.priority }}</span
+              >
+            </div>
+            <div class="d-flex flex-column gap-2 mt-2">
+              <button
+                *ngIf="isAdminOrHR"
+                class="btn btn-outline-primary btn-sm w-100"
+                (click)="openEditTask(task)"
+              >
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button
+                *ngIf="isAdminOrHR"
+                class="btn btn-outline-danger btn-sm w-100"
+                (click)="deleteTask(task.id)"
+              >
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="filteredTasks().length === 0" class="text-center text-muted py-4">
+          No tasks found.
+        </div>
       </div>
     </div>
     <!-- Add/Edit Task Modal -->
