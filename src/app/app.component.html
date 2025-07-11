@@ -9,9 +9,17 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand fs-4 fw-bold d-flex align-items-center" href="#">
-      <i class="fas fa-cubes me-2"></i> HR ERP
-    </a>
+    <div class="d-flex flex-column align-items-start w-100">
+      <a class="navbar-brand fs-4 fw-bold d-flex align-items-center" href="#">
+        <i class="fas fa-cubes me-2"></i> HR ERP
+      </a>
+      <div
+        *ngIf="isLoggedIn$ | async"
+        class="text-center small text-white fw-bold w-100 mt-1 ps-1"
+      >
+        Welcome, {{ username }}!
+      </div>
+    </div>
     <span class="role-badge ms-auto">{{ role$ | async }}</span>
   </div>
 </nav>
@@ -156,10 +164,18 @@
     <nav
       class="sidebar d-none d-md-flex flex-column align-items-center py-4 px-2"
     >
-      <div class="mb-4 w-100 d-flex align-items-center justify-content-center">
+      <div
+        class="mb-4 w-100 d-flex flex-column align-items-center justify-content-center"
+      >
         <a class="navbar-brand fs-4 fw-bold d-flex align-items-center" href="#">
           <i class="fas fa-cubes me-2"></i> HR ERP
         </a>
+        <div
+          *ngIf="isLoggedIn$ | async"
+          class="text-center small text-white fw-bold w-100 mt-2"
+        >
+          Welcome, {{ username }}!
+        </div>
       </div>
       <span class="role-badge mb-3">{{ role$ | async }}</span>
       <ul class="nav flex-column w-100">

@@ -14,10 +14,11 @@ export class AuthService {
     return typeof window !== 'undefined' && !!window.localStorage;
   }
 
-  login(role: UserRole) {
+  login(role: UserRole, username: string = 'demo-user') {
     if (this.isBrowser()) {
       localStorage.setItem('role', role);
       localStorage.setItem('loggedIn', 'true');
+      localStorage.setItem('username', username);
       // Assign a mock userId for demo: 1 for Employee, 2 for HR, 3 for Admin, 4 for ProjectManager
       let userId = '1';
       if (role === 'HR') userId = '2';
@@ -52,6 +53,13 @@ export class AuthService {
       return id ? +id : null;
     }
     return null;
+  }
+
+  getUsername(): string {
+    if (this.isBrowser()) {
+      return localStorage.getItem('username') || 'demo-user';
+    }
+    return 'demo-user';
   }
 
   private hasSession(): boolean {

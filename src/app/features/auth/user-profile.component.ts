@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserRole } from '../../core/services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -30,11 +31,20 @@ import { UserRole } from '../../core/services/auth.service';
   `
 })
 export class UserProfileComponent {
-  @Input() username: string = 'demo-user';
-  @Input() role: UserRole = 'Employee';
+  username: string = 'demo-user';
+  role: UserRole = 'Employee';
   @Output() roleChangeRequested = new EventEmitter<UserRole>();
   roles: UserRole[] = ['Admin', 'Employee', 'HR'];
   requestedRole: UserRole | null = null;
+
+  constructor(private auth: AuthService) {}
+
+  ngOnInit() {
+    this.username = this.auth.getUsername();
+    this.auth.getRole().subscribe((r: UserRole | null) => {
+      if (r) this.role = r;
+    });
+  }
 
   requestRoleChange() {
     if (this.requestedRole && this.requestedRole !== this.role) {

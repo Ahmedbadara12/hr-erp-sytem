@@ -14,6 +14,10 @@ import { FormsModule } from '@angular/forms';
         <h4 class="mb-3">Login</h4>
         <form (ngSubmit)="onLogin()">
           <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input class="form-control" [(ngModel)]="username" name="username" required />
+          </div>
+          <div class="mb-3">
             <label class="form-label">Role</label>
             <select class="form-select" [(ngModel)]="role" name="role" required>
               <option value="">Select role</option>
@@ -23,7 +27,7 @@ import { FormsModule } from '@angular/forms';
               <option value="ProjectManager">Project Manager</option>
             </select>
           </div>
-          <button class="btn btn-primary w-100" type="submit" [disabled]="!role">Login</button>
+          <button class="btn btn-primary w-100" type="submit" [disabled]="!role || !username">Login</button>
         </form>
       </div>
     </div>
@@ -31,10 +35,11 @@ import { FormsModule } from '@angular/forms';
 })
 export class LoginComponent {
   role: UserRole | '' = '';
+  username: string = '';
   constructor(private auth: AuthService, private router: Router) {}
   onLogin() {
-    if (this.role) {
-      this.auth.login(this.role);
+    if (this.role && this.username) {
+      this.auth.login(this.role, this.username);
       this.router.navigate(['/']);
     }
   }
