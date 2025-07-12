@@ -11,6 +11,14 @@ import { IEmployee } from '../../../shared/models/employee.model';
   imports: [CommonModule, FormsModule],
   template: `
     <form (ngSubmit)="onSubmit()" class="p-3">
+      <!-- Form Action Buttons - Moved Above Form -->
+      <div class="d-flex justify-content-end mb-3" *ngIf="!readonly">
+        <button type="submit" class="btn btn-primary me-2">Save</button>
+        <button type="button" class="btn btn-secondary" (click)="cancel.emit()">
+          Cancel
+        </button>
+      </div>
+      
       <div class="mb-3">
         <label class="form-label">Title</label>
         <input
@@ -88,12 +96,6 @@ import { IEmployee } from '../../../shared/models/employee.model';
           <option value="Medium">Medium</option>
           <option value="High">High</option>
         </select>
-      </div>
-      <div class="d-flex justify-content-end" *ngIf="!readonly">
-        <button type="submit" class="btn btn-primary me-2">Save</button>
-        <button type="button" class="btn btn-secondary" (click)="cancel.emit()">
-          Cancel
-        </button>
       </div>
     </form>
   `,

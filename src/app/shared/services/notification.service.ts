@@ -14,4 +14,12 @@ export class NotificationService {
   show(type: Notification['type'], message: string) {
     this.notificationSubject.next({ type, message });
   }
+
+  showSuccess(message: string) {
+    this.show('success', message);
+  }
+
+  showError(message: string) {
+    this.show('danger', message);
+  }
 } 

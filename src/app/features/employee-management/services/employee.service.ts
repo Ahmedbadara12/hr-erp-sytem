@@ -60,7 +60,7 @@ export class EmployeeService {
       address: '654 Maple St',
       dateOfBirth: '1995-12-22',
       hireDate: '2022-03-18',
-    }
+    },
   ];
 
   constructor(private http: HttpClient) {}
@@ -104,6 +104,10 @@ export class EmployeeService {
       return of(true);
     }
     return of(false);
+  }
+
+  setEmployees(employees: IEmployee[]) {
+    this.mockEmployees = employees;
   }
 
   // Add create, update, delete methods as needed

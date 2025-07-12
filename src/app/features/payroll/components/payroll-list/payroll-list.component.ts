@@ -6,6 +6,8 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { FormsModule } from '@angular/forms';
+import { CsvUtilService } from '../../../../shared/services/csv-util.service';
+import { AuthService, UserRole } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-payroll-list',
@@ -13,8 +15,33 @@ import { FormsModule } from '@angular/forms';
   imports: [RouterModule, CommonModule, LoadingSpinnerComponent, FormsModule],
   template: `
     <div class="table-card">
-      <div class="section-title mb-3">
-        <i class="fas fa-money-check-alt"></i> Payroll Review
+      <div
+        class="d-flex justify-content-between align-items-center mb-3 flex-wrap"
+      >
+        <div class="section-title mb-0">
+          <i class="fas fa-money-check-alt"></i> Payroll Review
+        </div>
+        <div class="d-flex gap-2">
+          <button
+            class="btn btn-outline-secondary"
+            (click)="exportPayrolls()"
+            *ngIf="role === 'Admin' || role === 'HR'"
+          >
+            <i class="fas fa-file-export"></i> Export CSV
+          </button>
+          <label
+            class="btn btn-outline-secondary mb-0"
+            *ngIf="role === 'Admin' || role === 'HR'"
+          >
+            <i class="fas fa-file-import"></i> Import CSV
+            <input
+              type="file"
+              accept=".csv"
+              (change)="importPayrolls($event)"
+              hidden
+            />
+          </label>
+        </div>
       </div>
       <!-- Progress Bar -->
       <div class="mb-4">
@@ -44,9 +71,7 @@ import { FormsModule } from '@angular/forms';
       <div *ngIf="step === 2">
         <ng-container *ngIf="filteredPayrolls.length > 0; else noPayroll">
           <div class="table-responsive d-none d-sm-block">
-            <table
-              class="table table-striped table-responsive payroll-table payroll-table-narrow mb-0 align-middle"
-            >
+            <table class="table table-striped payroll-table mb-0">
               <thead class="table-light">
                 <tr>
                   <th class="nowrap">Employee ID</th>
@@ -60,17 +85,11 @@ import { FormsModule } from '@angular/forms';
               </thead>
               <tbody>
                 <tr *ngFor="let payroll of filteredPayrolls">
-                  <td class="fw-semibold nowrap">{{ payroll.employeeId }}</td>
-                  <td class="nowrap">
-                    <span class="badge bg-primary">{{ payroll.month }}</span>
-                  </td>
-                  <td class="text-end nowrap">
-                    {{ payroll.grossSalary | currency }}
-                  </td>
-                  <td class="text-end nowrap">
-                    {{ payroll.netSalary | currency }}
-                  </td>
-                  <td class="text-center nowrap" style="width: 110px;">
+                  <td>{{ payroll.employeeId }}</td>
+                  <td>{{ payroll.month }}</td>
+                  <td class="text-end">{{ payroll.grossSalary | currency }}</td>
+                  <td class="text-end">{{ payroll.netSalary | currency }}</td>
+                  <td class="text-center nowrap">
                     <div
                       class="d-flex justify-content-center align-items-center w-100"
                     >
@@ -80,7 +99,6 @@ import { FormsModule } from '@angular/forms';
                         [attr.aria-label]="
                           'View payslip for employee ' + payroll.employeeId
                         "
-                        style="white-space: nowrap; min-width: 0;"
                       >
                         <i class="fas fa-file-invoice me-1"></i> Payslip
                       </button>
@@ -211,13 +229,22 @@ export class PayrollListComponent implements OnInit {
   filteredPayrolls: IPayroll[] = [];
   payslip: any = null;
   step = 1;
+  role: UserRole | null = null;
+
   get progress() {
     return ((this.step - 1) * 100) / 2;
   }
 
-  constructor(private payrollService: PayrollService) {}
+  constructor(
+    private payrollService: PayrollService,
+    private csvUtil: CsvUtilService,
+    private auth: AuthService
+  ) {}
 
   ngOnInit() {
+    this.auth.getRole().subscribe((role) => {
+      this.role = role;
+    });
     this.payrollService.getPayrolls().subscribe((payrolls) => {
       this.payrolls = payrolls;
       this.months = Array.from(new Set(payrolls.map((p) => p.month)));
@@ -248,5 +275,28 @@ export class PayrollListComponent implements OnInit {
       this.payslip = p;
       this.step = 3;
     });
+  }
+
+  exportPayrolls() {
+    const csv = this.csvUtil.arrayToCsv(this.payrolls);
+    this.csvUtil.downloadCsv(csv, 'payrolls.csv');
+  }
+
+  importPayrolls(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    this.csvUtil.readCsvFile(file).then((csv) => {
+      const payrolls = this.csvUtil.csvToArray(csv);
+      this.payrollService.setPayrolls(payrolls); // You may need to implement setPayrolls in PayrollService
+      this.payrolls = payrolls;
+      this.filterPayrolls();
+    });
+  }
+
+  filterPayrolls() {
+    this.filteredPayrolls = this.payrolls.filter(
+      (p) => p.month === this.selectedMonth
+    );
   }
 }

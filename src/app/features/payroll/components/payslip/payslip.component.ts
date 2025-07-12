@@ -22,20 +22,14 @@ import { LoadingSpinnerComponent } from '../../../../shared/components/loading-s
       <hr />
       <h6>Deductions</h6>
       <ul class="list-group mb-3">
-        <li
-          class="list-group-item d-flex justify-content-between align-items-center"
-          *ngFor="let d of payslip.deductions"
-        >
+        <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let d of payslip.deductions">
           {{ d.label }}
           <span>{{ d.amount | currency }}</span>
         </li>
       </ul>
       <h6>Allowances</h6>
       <ul class="list-group">
-        <li
-          class="list-group-item d-flex justify-content-between align-items-center"
-          *ngFor="let a of payslip.allowances"
-        >
+        <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let a of payslip.allowances">
           {{ a.label }}
           <span>{{ a.amount | currency }}</span>
         </li>

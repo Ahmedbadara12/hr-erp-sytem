@@ -7,7 +7,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        canActivate: [authGuard('HR')],
+        canActivate: [authGuard(['HR', 'Admin'])],
         loadComponent: () =>
           import(
             './features/employee-management/components/employee-list/employee-list.component'
@@ -15,7 +15,7 @@ export const routes: Routes = [
       },
       {
         path: 'create',
-        canActivate: [authGuard('HR')],
+        canActivate: [authGuard(['HR', 'Admin'])],
         loadComponent: () =>
           import(
             './features/employee-management/components/employee-form/employee-form.component'
@@ -23,7 +23,7 @@ export const routes: Routes = [
       },
       {
         path: 'edit/:id',
-        canActivate: [authGuard('HR')],
+        canActivate: [authGuard(['HR', 'Admin'])],
         loadComponent: () =>
           import(
             './features/employee-management/components/employee-form/employee-form.component'
@@ -31,7 +31,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile/:id',
-        canActivate: [authGuard(['Employee', 'HR', 'ProjectManager'])],
+        canActivate: [authGuard(['Employee', 'HR', 'Admin'])],
         loadComponent: () =>
           import(
             './features/employee-management/components/employee-profile/employee-profile.component'
@@ -41,7 +41,7 @@ export const routes: Routes = [
   },
   {
     path: 'leave',
-    canActivate: [authGuard(['Employee', 'HR'])],
+    canActivate: [authGuard(['Employee', 'HR', 'Admin'])],
     children: [
       {
         path: '',
@@ -52,7 +52,7 @@ export const routes: Routes = [
       },
       {
         path: 'apply',
-        canActivate: [authGuard('Employee')],
+        canActivate: [authGuard(['Employee', 'Admin'])],
         loadComponent: () =>
           import(
             './features/leave-management/components/leave-apply/leave-apply.component'
@@ -62,7 +62,7 @@ export const routes: Routes = [
   },
   {
     path: 'leave-approve',
-    canActivate: [authGuard('HR')],
+    canActivate: [authGuard(['HR', 'Admin'])],
     loadComponent: () =>
       import(
         './features/leave-management/components/leave-approve/leave-approve.component'
@@ -70,7 +70,7 @@ export const routes: Routes = [
   },
   {
     path: 'payroll',
-    canActivate: [authGuard('Admin')],
+    canActivate: [authGuard(['Admin', 'HR'])],
     children: [
       {
         path: '',
@@ -90,11 +90,38 @@ export const routes: Routes = [
   },
   {
     path: 'tasks',
-    canActivate: [authGuard(['Admin', 'HR', 'Employee', 'ProjectManager'])],
+    canActivate: [authGuard(['Admin', 'HR', 'Employee'])],
     loadComponent: () =>
       import('./features/task-management/components/task-list.component').then(
         (m) => m.TaskListComponent
       ),
+  },
+  {
+    path: 'learning',
+    canActivate: [authGuard(['Admin', 'HR', 'Employee'])],
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import(
+            './features/learning-management/components/course-catalog/course-catalog.component'
+          ).then((m) => m.CourseCatalogComponent),
+      },
+      {
+        path: 'my-courses',
+        loadComponent: () =>
+          import(
+            './features/learning-management/components/my-courses/my-courses.component'
+          ).then((m) => m.MyCoursesComponent),
+      },
+      {
+        path: 'course/:id',
+        loadComponent: () =>
+          import(
+            './features/learning-management/components/course-detail/course-detail.component'
+          ).then((m) => m.CourseDetailComponent),
+      },
+    ],
   },
   {
     path: 'profile',

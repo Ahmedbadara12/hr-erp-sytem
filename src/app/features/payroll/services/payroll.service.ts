@@ -60,6 +60,10 @@ export class PayrollService {
     return of(this.mockPayrolls);
   }
 
+  setPayrolls(payrolls: IPayroll[]) {
+    this.mockPayrolls = payrolls;
+  }
+
   getPayslipByPayrollId(payrollId: number): Observable<IPayslip | undefined> {
     return of(this.mockPayslips.find((p) => p.payrollId === payrollId));
   }

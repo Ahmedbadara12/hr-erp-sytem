@@ -12,13 +12,11 @@ import { CommonModule } from '@angular/common';
   template: `
     <div
       *ngIf="notification"
-      class="alert alert-{{
-        notification?.type
-      }} position-fixed top-0 end-0 m-4"
+      class="alert alert-{{ notification.type }} position-fixed top-0 end-0 m-4"
       style="z-index: 2000; min-width: 250px;"
       role="alert"
     >
-      {{ notification?.message }}
+      {{ notification.message }}
     </div>
   `,
   styles: [],
