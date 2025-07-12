@@ -16,6 +16,8 @@ export class AuthService {
   }
 
   login(role: UserRole, username: string = 'demo-user') {
+    console.log('AuthService.login called with:', { role, username });
+    
     if (this.isBrowser()) {
       localStorage.setItem('role', role);
       localStorage.setItem('loggedIn', 'true');
@@ -30,6 +32,8 @@ export class AuthService {
     this.loggedIn$.next(true);
     this.role$.next(role);
     this.username$.next(username);
+    
+    console.log('AuthService: Updated username observable to:', username);
   }
 
   logout() {

@@ -7,7 +7,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        canActivate: [authGuard(['HR', 'Admin'])],
+        canActivate: [authGuard(['HR', 'Admin', 'ProjectManager'])],
         loadComponent: () =>
           import(
             './features/employee-management/components/employee-list/employee-list.component'
@@ -31,7 +31,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile/:id',
-        canActivate: [authGuard(['Employee', 'HR', 'Admin'])],
+        canActivate: [authGuard(['Employee', 'HR', 'Admin', 'ProjectManager'])],
         loadComponent: () =>
           import(
             './features/employee-management/components/employee-profile/employee-profile.component'
@@ -41,7 +41,7 @@ export const routes: Routes = [
   },
   {
     path: 'leave',
-    canActivate: [authGuard(['Employee', 'HR', 'Admin'])],
+    canActivate: [authGuard(['Employee', 'HR', 'Admin', 'ProjectManager'])],
     children: [
       {
         path: '',
@@ -90,7 +90,7 @@ export const routes: Routes = [
   },
   {
     path: 'tasks',
-    canActivate: [authGuard(['Admin', 'HR', 'Employee'])],
+    canActivate: [authGuard(['Admin', 'HR', 'Employee', 'ProjectManager'])],
     loadComponent: () =>
       import('./features/task-management/components/task-list.component').then(
         (m) => m.TaskListComponent
@@ -98,7 +98,7 @@ export const routes: Routes = [
   },
   {
     path: 'learning',
-    canActivate: [authGuard(['Admin', 'HR', 'Employee'])],
+    canActivate: [authGuard(['Admin', 'HR', 'Employee', 'ProjectManager'])],
     children: [
       {
         path: '',
@@ -129,7 +129,7 @@ export const routes: Routes = [
       import('./features/auth/user-profile.component').then(
         (m) => m.UserProfileComponent
       ),
-    canActivate: [authGuard(['Admin', 'HR', 'Employee'])],
+    canActivate: [authGuard(['Admin', 'HR', 'Employee', 'ProjectManager'])],
   },
   {
     path: 'login',

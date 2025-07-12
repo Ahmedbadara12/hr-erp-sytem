@@ -9,18 +9,75 @@
 $primary: #7c3aed; // Odoo purple
 $primary-light: #a78bfa;
 $primary-dark: #5b21b6;
+$background: #f7f6fb;
 $body-color: #232136; // Main font color
 $headings-color: $primary;
+$success: #10b981;
+$danger: #ef4444;
+$info: #7c3aed;
 
 // --- FONT FAMILY ---
 body {
   font-family: "Inter", Arial, sans-serif;
-  background: #f7f6fb;
+  background: $background;
   color: $body-color;
   font-size: 1.08rem;
   line-height: 1.7;
   margin: 0;
   padding: 0;
+}
+
+// --- FORM LABELS ---
+.form-label,
+label {
+  color: $body-color !important;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  text-shadow: 0 0 1px rgba(35, 33, 54, 0.08); // $body-color shadow
+}
+
+// --- FORM LABELS (ENHANCED VISIBILITY) ---
+.form-label,
+label {
+  color: #111 !important;
+  font-weight: 700;
+  text-shadow: 0 0 1px rgba(0,0,0,0.08);
+}
+
+// Force disabled labels to be visible and dark
+label[ng-reflect-disabled="true"],
+.form-label[ng-reflect-disabled="true"],
+label:disabled,
+.form-label:disabled {
+  color: #333 !important;
+  opacity: 1 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .form-label,
+  label {
+    color: #fff !important;
+    text-shadow: 0 0 1px rgba(255,255,255,0.08);
+  }
+  label[ng-reflect-disabled="true"],
+  .form-label[ng-reflect-disabled="true"],
+  label:disabled,
+  .form-label:disabled {
+    color: #eee !important;
+    opacity: 1 !important;
+  }
+}
+// --- END FORM LABELS ENHANCED ---
+
+/* Dark mode support for form labels */
+@media (prefers-color-scheme: dark) {
+  .form-label {
+    color: #ffffff !important;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+  }
 }
 
 // --- HEADINGS ---
@@ -1256,3 +1313,46 @@ textarea:focus {
     gap: 0.9rem;
   }
 }
+
+// --- FORCE LABEL VISIBILITY ON ALL BACKGROUNDS ---
+label,
+.form-label,
+.form-group label,
+.form-field-container label {
+  color: #18181b !important; // near-black for light backgrounds
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 0 #fff, 0 0 2px #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  label,
+  .form-label,
+  .form-group label,
+  .form-field-container label {
+    color: #fff !important;
+    text-shadow: 0 1px 0 #232136, 0 0 2px #232136;
+  }
+}
+// --- END FORCE LABEL VISIBILITY ---
+
+// --- FORCE LABELS TO PURPLE FOR MAXIMUM VISIBILITY ---
+label,
+.form-label,
+.form-group label,
+.form-field-container label {
+  color: $primary !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+@media (prefers-color-scheme: dark) {
+  label,
+  .form-label,
+  .form-group label,
+  .form-field-container label {
+    color: $primary !important;
+    text-shadow: none !important;
+  }
+}
+// --- END FORCE LABELS TO PURPLE ---

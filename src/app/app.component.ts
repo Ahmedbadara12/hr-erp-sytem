@@ -17,10 +17,9 @@ export class AppComponent {
   isLoggedIn$ = this.auth.isLoggedIn();
   role$ = this.auth.getRole();
   userId = this.auth.getUserId();
-  username = this.auth.getUsername();
+  username$ = this.auth.getUsername$();
 
   constructor(public auth: AuthService, private router: Router) {
-    this.auth.getUsername$().subscribe(name => this.username = name);
   }
 
   logout() {

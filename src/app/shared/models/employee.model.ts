@@ -8,4 +8,6 @@ export interface IEmployee {
   address?: string;
   dateOfBirth?: string; // ISO format
   hireDate?: string; // ISO format
+  salary?: number;
+  emergencyContact?: string;
 }

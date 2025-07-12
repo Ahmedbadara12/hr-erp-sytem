@@ -4,22 +4,47 @@ import {
   FormGroup,
   Validators,
   ReactiveFormsModule,
+  FormControl,
 } from '@angular/forms';
 import { LeaveService } from '../../services/leave.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService, UserRole } from '../../../../core/services/auth.service';
+import { ValidationService } from '../../../../shared/services/validation.service';
+import {
+  AlertComponent,
+  AlertType,
+} from '../../../../shared/components/alert/alert.component';
+import { InputComponent } from '../../../../shared/components/input/input.component';
 
 @Component({
   selector: 'app-leave-apply',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    RouterModule,
+    AlertComponent,
+    InputComponent,
+  ],
   template: `
     <div
       *ngIf="role === 'Employee' || role === 'Admin'; else notAllowed"
       class="leave-apply-container"
     >
       <div class="leave-apply-card">
+        <!-- Alert Messages -->
+        <app-alert
+          *ngIf="alertMessage"
+          [type]="alertType"
+          [message]="alertMessage"
+          [title]="alertTitle"
+          [dismissible]="true"
+          [autoDismiss]="true"
+          [autoDismissTime]="5000"
+          (dismissed)="clearAlert()"
+        ></app-alert>
+
         <div class="leave-apply-header">
           <h2 class="leave-apply-title">
             <i class="fas fa-calendar-plus me-2"></i>Apply for Leave
@@ -56,7 +81,7 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
           </div>
         </div>
 
-        <!-- Form Navigation Buttons - Moved Above Form -->
+        <!-- Form Navigation Buttons -->
         <div class="form-navigation mb-4">
           <button
             *ngIf="step > 1"
@@ -77,144 +102,193 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
           </button>
           <button
             *ngIf="step === 4"
-            type="submit"
-            class="btn btn-odoo"
-            [disabled]="leaveForm.invalid"
+            type="button"
+            class="btn btn-success"
+            (click)="submitLeaveRequest()"
+            [disabled]="leaveForm.invalid || isSubmitting"
           >
-            <i class="fas fa-paper-plane me-2"></i>Submit Request
+            <i class="fas fa-paper-plane me-2"></i>
+            <span *ngIf="!isSubmitting">Submit Request</span>
+            <span *ngIf="isSubmitting">Submitting...</span>
           </button>
         </div>
 
-        <form
-          [formGroup]="leaveForm"
-          (ngSubmit)="onSubmit()"
-          class="leave-form"
-        >
+        <form [formGroup]="leaveForm" class="leave-form">
           <!-- Step 1: Leave Type -->
-          <div *ngIf="step === 1" class="form-step">
+          <div *ngIf="step === 1" class="step-content">
             <h3 class="step-title">
-              <i class="fas fa-tag me-2"></i>Select Leave Type
+              <i class="fas fa-list me-2"></i>Select Leave Type
             </h3>
             <div class="form-group">
-              <label class="form-label">Leave Type</label>
-              <select class="form-select" formControlName="type">
+              <label for="leave-type" class="form-label">
+                <i class="fas fa-calendar me-2"></i>Leave Type
+                <span class="required-indicator">*</span>
+              </label>
+              <select
+                class="form-control"
+                formControlName="leaveType"
+                [class.is-invalid]="hasError(leaveForm.get('leaveType')!)"
+                [class.is-valid]="isValid(leaveForm.get('leaveType')!)"
+                id="leave-type"
+                autocomplete="off"
+              >
                 <option value="">Choose leave type</option>
                 <option value="Annual">Annual Leave</option>
                 <option value="Sick">Sick Leave</option>
-                <option value="Unpaid">Unpaid Leave</option>
                 <option value="Personal">Personal Leave</option>
+                <option value="Maternity">Maternity Leave</option>
+                <option value="Paternity">Paternity Leave</option>
+                <option value="Unpaid">Unpaid Leave</option>
               </select>
-              <div
-                *ngIf="
-                  leaveForm.get('type')?.invalid &&
-                  leaveForm.get('type')?.touched
-                "
-                class="error-message"
-              >
-                <i class="fas fa-exclamation-circle me-1"></i>Please select a
-                leave type
+              <div class="input-feedback" *ngIf="showFeedback">
+                <div
+                  *ngIf="hasError(leaveForm.get('leaveType')!)"
+                  class="error-message"
+                >
+                  <i class="fas fa-exclamation-circle me-1"></i>
+                  {{
+                    getErrorMessage(leaveForm.get('leaveType')!, 'Leave Type')
+                  }}
+                </div>
+                <div
+                  *ngIf="isValid(leaveForm.get('leaveType')!)"
+                  class="success-message"
+                >
+                  <i class="fas fa-check-circle me-1"></i>
+                  Leave type selected!
+                </div>
+              </div>
+              <div class="field-help">
+                <i class="fas fa-info-circle me-1"></i>
+                Select the type of leave you want to apply for
               </div>
             </div>
           </div>
 
           <!-- Step 2: Dates -->
-          <div *ngIf="step === 2" class="form-step">
+          <div *ngIf="step === 2" class="step-content">
             <h3 class="step-title">
-              <i class="fas fa-calendar me-2"></i>Select Dates
+              <i class="fas fa-calendar-alt me-2"></i>Select Dates
             </h3>
             <div class="row">
               <div class="col-md-6">
-                <div class="form-group">
-                  <label class="form-label">From Date</label>
-                  <input
-                    type="date"
-                    class="form-control"
-                    formControlName="from"
-                  />
-                  <div
-                    *ngIf="
-                      leaveForm.get('from')?.invalid &&
-                      leaveForm.get('from')?.touched
-                    "
-                    class="error-message"
-                  >
-                    <i class="fas fa-exclamation-circle me-1"></i>Please select
-                    a start date
-                  </div>
-                </div>
+                <app-input
+                  label="Start Date"
+                  type="date"
+                  [control]="startDateControl"
+                  placeholder="Select start date"
+                  icon="fas fa-calendar"
+                  [required]="true"
+                  helpText="Select the start date of your leave"
+                  successMessage="Start date is valid!"
+                  fieldId="leave-start-date"
+                  autocomplete="date"
+                ></app-input>
               </div>
               <div class="col-md-6">
-                <div class="form-group">
-                  <label class="form-label">To Date</label>
-                  <input
-                    type="date"
-                    class="form-control"
-                    formControlName="to"
-                  />
-                  <div
-                    *ngIf="
-                      leaveForm.get('to')?.invalid &&
-                      leaveForm.get('to')?.touched
-                    "
-                    class="error-message"
-                  >
-                    <i class="fas fa-exclamation-circle me-1"></i>Please select
-                    an end date
-                  </div>
-                </div>
+                <app-input
+                  label="End Date"
+                  type="date"
+                  [control]="endDateControl"
+                  placeholder="Select end date"
+                  icon="fas fa-calendar"
+                  [required]="true"
+                  helpText="Select the end date of your leave"
+                  successMessage="End date is valid!"
+                  fieldId="leave-end-date"
+                  autocomplete="date"
+                ></app-input>
               </div>
+            </div>
+            <div class="form-group">
+              <app-input
+                label="Number of Days"
+                type="number"
+                [control]="daysControl"
+                placeholder="Enter number of days"
+                icon="fas fa-calculator"
+                [required]="true"
+                helpText="Enter the total number of leave days"
+                successMessage="Days count is valid!"
+                fieldId="leave-days"
+                autocomplete="off"
+              ></app-input>
             </div>
           </div>
 
           <!-- Step 3: Reason -->
-          <div *ngIf="step === 3" class="form-step">
+          <div *ngIf="step === 3" class="step-content">
             <h3 class="step-title">
-              <i class="fas fa-comment me-2"></i>Reason for Leave
+              <i class="fas fa-comment me-2"></i>Provide Reason
             </h3>
             <div class="form-group">
-              <label class="form-label">Reason</label>
+              <label for="leave-reason" class="form-label">
+                <i class="fas fa-edit me-2"></i>Reason for Leave
+                <span class="required-indicator">*</span>
+              </label>
               <textarea
                 class="form-control"
                 formControlName="reason"
                 rows="4"
                 placeholder="Please provide a detailed reason for your leave request..."
+                [class.is-invalid]="hasError(leaveForm.get('reason')!)"
+                [class.is-valid]="isValid(leaveForm.get('reason')!)"
+                id="leave-reason"
+                autocomplete="off"
               ></textarea>
-              <div
-                *ngIf="
-                  leaveForm.get('reason')?.invalid &&
-                  leaveForm.get('reason')?.touched
-                "
-                class="error-message"
-              >
-                <i class="fas fa-exclamation-circle me-1"></i>Please provide a
-                reason
+              <div class="input-feedback" *ngIf="showFeedback">
+                <div
+                  *ngIf="hasError(leaveForm.get('reason')!)"
+                  class="error-message"
+                >
+                  <i class="fas fa-exclamation-circle me-1"></i>
+                  {{ getErrorMessage(leaveForm.get('reason')!, 'Reason') }}
+                </div>
+                <div
+                  *ngIf="isValid(leaveForm.get('reason')!)"
+                  class="success-message"
+                >
+                  <i class="fas fa-check-circle me-1"></i>
+                  Reason looks good!
+                </div>
+              </div>
+              <div class="field-help">
+                <i class="fas fa-info-circle me-1"></i>
+                Provide a detailed explanation for your leave request (10-500
+                characters)
               </div>
             </div>
           </div>
 
           <!-- Step 4: Review -->
-          <div *ngIf="step === 4" class="form-step">
+          <div *ngIf="step === 4" class="step-content">
             <h3 class="step-title">
               <i class="fas fa-eye me-2"></i>Review Your Request
             </h3>
-            <div class="review-card">
+            <div class="review-summary">
               <div class="review-item">
                 <span class="review-label">Leave Type:</span>
                 <span class="review-value">{{
-                  leaveForm.get('type')?.value
+                  leaveForm.get('leaveType')?.value
                 }}</span>
               </div>
               <div class="review-item">
-                <span class="review-label">From:</span>
+                <span class="review-label">Start Date:</span>
                 <span class="review-value">{{
-                  leaveForm.get('from')?.value
+                  leaveForm.get('startDate')?.value | date : 'mediumDate'
                 }}</span>
               </div>
               <div class="review-item">
-                <span class="review-label">To:</span>
+                <span class="review-label">End Date:</span>
                 <span class="review-value">{{
-                  leaveForm.get('to')?.value
+                  leaveForm.get('endDate')?.value | date : 'mediumDate'
                 }}</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Days:</span>
+                <span class="review-value"
+                  >{{ leaveForm.get('days')?.value }} days</span
+                >
               </div>
               <div class="review-item">
                 <span class="review-label">Reason:</span>
@@ -229,29 +303,38 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
     </div>
 
     <ng-template #notAllowed>
-      <div class="not-allowed">
-        <div class="not-allowed-icon">
-          <i class="fas fa-ban"></i>
+      <div class="not-allowed-container">
+        <div class="not-allowed-card">
+          <div class="not-allowed-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3 class="not-allowed-title">Access Denied</h3>
+          <p class="not-allowed-message">
+            You don't have permission to apply for leave with your current role.
+          </p>
+          <a class="btn btn-odoo" [routerLink]="['/']">
+            <i class="fas fa-home me-2"></i>Go to Dashboard
+          </a>
         </div>
-        <h3>Access Denied</h3>
-        <p>You don't have permission to apply for leave.</p>
       </div>
     </ng-template>
   `,
   styles: [
     `
       .leave-apply-container {
-        padding: 2rem 0;
+        padding: 2rem;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
 
       .leave-apply-card {
-        background: white;
-        border-radius: 1.5rem;
-        box-shadow: 0 8px 32px rgba(124, 58, 237, 0.1);
-        padding: 2.5rem;
-        max-width: 700px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
         margin: 0 auto;
-        border: 1px solid rgba(124, 58, 237, 0.1);
       }
 
       .leave-apply-header {
@@ -260,16 +343,15 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
       }
 
       .leave-apply-title {
-        color: #1f2937;
-        font-size: 1.75rem;
+        color: #2d3748;
+        font-size: 2rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
       }
 
       .leave-apply-subtitle {
-        color: #6b7280;
-        font-size: 1rem;
-        margin-bottom: 0;
+        color: #718096;
+        font-size: 1.1rem;
       }
 
       .progress-section {
@@ -277,7 +359,7 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
       }
 
       .progress-bar-container {
-        background: #e5e7eb;
+        background: #e2e8f0;
         border-radius: 1rem;
         height: 0.5rem;
         margin-bottom: 1rem;
@@ -285,7 +367,7 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
       }
 
       .progress-bar {
-        background: linear-gradient(135deg, #7c3aed, #a78bfa);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         height: 100%;
         border-radius: 1rem;
         transition: width 0.3s ease;
@@ -294,11 +376,12 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
 
       .progress-text {
         position: absolute;
-        top: -2rem;
-        right: 0;
-        font-size: 0.875rem;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: #7c3aed;
       }
 
       .progress-steps {
@@ -318,40 +401,90 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
         width: 2rem;
         height: 2rem;
         border-radius: 50%;
-        background: #e5e7eb;
-        color: #9ca3af;
+        background: #e2e8f0;
         display: flex;
         align-items: center;
         justify-content: center;
+        color: #a0aec0;
         font-weight: 600;
-        font-size: 0.875rem;
         transition: all 0.3s ease;
       }
 
       .progress-step.active .step-dot {
-        background: linear-gradient(135deg, #7c3aed, #a78bfa);
+        background: #667eea;
         color: white;
-        box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
       }
 
       .step-label {
-        font-size: 0.75rem;
+        font-size: 0.875rem;
         font-weight: 600;
-        color: #6b7280;
+        color: #4a5568;
       }
 
-      .progress-step.active .step-label {
-        color: #7c3aed;
+      .form-navigation {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
       }
 
-      .form-step {
-        margin-bottom: 2rem;
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-odoo {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-odoo:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-outline-secondary {
+        background: transparent;
+        color: #4a5568;
+        border: 2px solid #e2e8f0;
+      }
+
+      .btn-outline-secondary:hover {
+        background: #f7fafc;
+        border-color: #cbd5e0;
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+      }
+
+      .btn-success:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(72, 187, 120, 0.3);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .step-content {
+        margin-top: 2rem;
       }
 
       .step-title {
-        color: #1f2937;
-        font-size: 1.25rem;
-        font-weight: 600;
+        color: #2d3748;
+        font-size: 1.5rem;
+        font-weight: 700;
         margin-bottom: 1.5rem;
         display: flex;
         align-items: center;
@@ -362,43 +495,80 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
       }
 
       .form-label {
-        color: #374151;
-        font-weight: 600;
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+        color: #000000;
         margin-bottom: 0.5rem;
-        display: block;
+        font-size: 0.95rem;
+        text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
       }
 
-      .form-control,
-      .form-select {
-        border: 2px solid #e5e7eb;
+      .required-indicator {
+        color: #e53e3e;
+        margin-left: 0.25rem;
+        font-weight: 700;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
         border-radius: 0.75rem;
-        padding: 0.875rem 1rem;
         font-size: 1rem;
         transition: all 0.3s ease;
-        background: #f9fafb;
+        background: #fff;
+        color: #2d3748;
       }
 
-      .form-control:focus,
-      .form-select:focus {
-        border-color: #7c3aed;
-        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        background: white;
+      .form-control:focus {
         outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .form-control.is-valid {
+        border-color: #48bb78;
+        background-color: #f0fff4;
+      }
+
+      .form-control.is-invalid {
+        border-color: #f56565;
+        background-color: #fff5f5;
+      }
+
+      .input-feedback {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
       }
 
       .error-message {
-        color: #dc2626;
+        color: #e53e3e;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+      }
+
+      .success-message {
+        color: #38a169;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+      }
+
+      .field-help {
+        margin-top: 0.5rem;
         font-size: 0.875rem;
-        margin-top: 0.25rem;
+        color: #718096;
         display: flex;
         align-items: center;
       }
 
-      .review-card {
-        background: #f8fafc;
-        border-radius: 1rem;
+      .review-summary {
+        background: #f7fafc;
+        border-radius: 0.75rem;
         padding: 1.5rem;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #e2e8f0;
       }
 
       .review-item {
@@ -406,7 +576,7 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
         justify-content: space-between;
         align-items: center;
         padding: 0.75rem 0;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: 1px solid #e2e8f0;
       }
 
       .review-item:last-child {
@@ -415,54 +585,68 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
 
       .review-label {
         font-weight: 600;
-        color: #374151;
+        color: #4a5568;
       }
 
       .review-value {
-        color: #6b7280;
+        color: #2d3748;
+        font-weight: 500;
       }
 
-      .form-navigation {
+      .not-allowed-container {
+        padding: 2rem;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-top: 2rem;
-        gap: 1rem;
+        justify-content: center;
       }
 
-      .not-allowed {
+      .not-allowed-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 3rem;
         text-align: center;
-        padding: 4rem 2rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
       }
 
       .not-allowed-icon {
         font-size: 4rem;
-        color: #dc2626;
+        color: #f56565;
         margin-bottom: 1rem;
       }
 
-      .not-allowed h3 {
-        color: #1f2937;
-        margin-bottom: 0.5rem;
+      .not-allowed-title {
+        color: #2d3748;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
       }
 
-      .not-allowed p {
-        color: #6b7280;
+      .not-allowed-message {
+        color: #718096;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
       }
 
+      /* Mobile Responsive */
       @media (max-width: 768px) {
+        .leave-apply-container {
+          padding: 1rem;
+        }
+
         .leave-apply-card {
           padding: 1.5rem;
-          margin: 1rem;
         }
 
         .leave-apply-title {
           font-size: 1.5rem;
         }
 
-        .progress-steps {
-          flex-wrap: wrap;
-          gap: 1rem;
+        .leave-apply-subtitle {
+          font-size: 1rem;
         }
 
         .form-navigation {
@@ -471,24 +655,15 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
 
         .btn {
           width: 100%;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .leave-apply-card {
-          padding: 1rem;
-          margin: 0.5rem;
+          justify-content: center;
         }
 
         .progress-steps {
-          flex-direction: column;
-          gap: 1rem;
+          gap: 0.5rem;
         }
 
-        .review-item {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.25rem;
+        .step-label {
+          font-size: 0.75rem;
         }
       }
     `,
@@ -498,23 +673,46 @@ export class LeaveApplyComponent {
   leaveForm: FormGroup;
   step = 1;
   progress = 25;
-  role: UserRole | null = null;
+  role: UserRole = 'Employee';
+  isSubmitting = false;
+
+  // Alert properties
+  alertMessage = '';
+  alertType: AlertType = 'info';
+  alertTitle = '';
+  showFeedback = true;
 
   constructor(
     private fb: FormBuilder,
     private leaveService: LeaveService,
     private router: Router,
-    private auth: AuthService
+    private authService: AuthService,
+    private validationService: ValidationService
   ) {
     this.leaveForm = this.fb.group({
-      type: ['', Validators.required],
-      from: ['', Validators.required],
-      to: ['', Validators.required],
-      reason: ['', Validators.required],
+      leaveType: ['', Validators.required],
+      startDate: [
+        '',
+        [Validators.required, this.validationService.dateValidator()],
+      ],
+      endDate: [
+        '',
+        [Validators.required, this.validationService.dateValidator()],
+      ],
+      days: ['', [Validators.required, Validators.min(1), Validators.max(365)]],
+      reason: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(500),
+        ],
+      ],
     });
 
-    this.auth.getRole().subscribe((role) => {
-      this.role = role;
+    // Get user role
+    this.authService.getRole().subscribe((role) => {
+      if (role) this.role = role;
     });
   }
 
@@ -535,26 +733,118 @@ export class LeaveApplyComponent {
   canProceed(): boolean {
     switch (this.step) {
       case 1:
-        return this.leaveForm.get('type')?.valid || false;
+        const leaveTypeControl = this.leaveForm.get('leaveType');
+        if (leaveTypeControl && !leaveTypeControl.touched) {
+          leaveTypeControl.markAsTouched();
+        }
+        return leaveTypeControl?.valid || false;
       case 2:
+        const startDateControl = this.leaveForm.get('startDate');
+        const endDateControl = this.leaveForm.get('endDate');
+        const daysControl = this.leaveForm.get('days');
+
+        if (startDateControl && !startDateControl.touched) {
+          startDateControl.markAsTouched();
+        }
+        if (endDateControl && !endDateControl.touched) {
+          endDateControl.markAsTouched();
+        }
+        if (daysControl && !daysControl.touched) {
+          daysControl.markAsTouched();
+        }
+
         return (
-          (this.leaveForm.get('from')?.valid &&
-            this.leaveForm.get('to')?.valid) ||
+          (startDateControl?.valid &&
+            endDateControl?.valid &&
+            daysControl?.valid) ||
           false
         );
       case 3:
-        return this.leaveForm.get('reason')?.valid || false;
+        const reasonControl = this.leaveForm.get('reason');
+        if (reasonControl && !reasonControl.touched) {
+          reasonControl.markAsTouched();
+        }
+        return reasonControl?.valid || false;
       default:
         return false;
     }
   }
 
-  onSubmit() {
+  submitLeaveRequest() {
     if (this.leaveForm.valid) {
+      this.isSubmitting = true;
       const leaveData = this.leaveForm.value;
-      this.leaveService.addLeave(leaveData).subscribe(() => {
-        this.router.navigate(['/leave']);
-      });
+      setTimeout(() => {
+        this.leaveService.applyLeave(leaveData).subscribe({
+          next: () => {
+            this.showAlert(
+              'success',
+              'Leave Request Submitted',
+              'Your leave request has been submitted successfully and is pending approval.'
+            );
+            setTimeout(() => {
+              this.router.navigate(['/leave']);
+            }, 2000);
+          },
+          error: (error) => {
+            this.isSubmitting = false;
+            this.showAlert(
+              'danger',
+              'Submission Failed',
+              'Failed to submit leave request. Please try again.'
+            );
+          },
+        });
+      }, 1000);
+    } else {
+      this.markFormGroupTouched();
+      this.showAlert(
+        'warning',
+        'Validation Error',
+        'Please fix the errors in the form before submitting.'
+      );
     }
+  }
+
+  markFormGroupTouched() {
+    Object.values(this.leaveForm.controls).forEach((control) => {
+      control.markAsTouched();
+    });
+  }
+
+  // Validation helper methods
+  hasError(control: any): boolean {
+    return this.validationService.hasError(control);
+  }
+
+  isValid(control: any): boolean {
+    return this.validationService.isValid(control);
+  }
+
+  getErrorMessage(control: any, fieldName: string): string {
+    return this.validationService.getErrorMessage(control, fieldName);
+  }
+
+  // Alert methods
+  showAlert(type: AlertType, title: string, message: string) {
+    this.alertType = type;
+    this.alertTitle = title;
+    this.alertMessage = message;
+  }
+
+  clearAlert() {
+    this.alertMessage = '';
+    this.alertTitle = '';
+  }
+
+  // Getter methods for form controls to avoid type casting issues
+  get startDateControl(): FormControl {
+    return this.leaveForm.get('startDate') as FormControl;
+  }
+  get endDateControl(): FormControl {
+    return this.leaveForm.get('endDate') as FormControl;
+  }
+  get daysControl(): FormControl {
+    return this.leaveForm.get('days') as FormControl;
   }
 }

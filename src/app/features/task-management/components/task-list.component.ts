@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { TaskFormComponent } from './task-form.component';
 import { TaskDetailComponent } from './task-detail.component';
 import { AuthService, UserRole } from '../../../core/services/auth.service';
+import { EmployeeService } from '../../employee-management/services/employee.service';
+import { IEmployee } from '../../../shared/models/employee.model';
 
 @Component({
   selector: 'app-task-list',
@@ -25,12 +27,17 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
           [task]="emptyTask()"
           (submitTask)="addFirstTaskForEmployee($event)"
           [readonly]="false"
+          [isModal]="false"
         ></app-task-form>
       </div>
     </div>
     <div class="table-card mt-4">
-      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-        <div class="section-title mb-0"><i class="fas fa-tasks"></i> Task List</div>
+      <div
+        class="d-flex justify-content-between align-items-center mb-3 flex-wrap"
+      >
+        <div class="section-title mb-0">
+          <i class="fas fa-tasks"></i> Task List
+        </div>
         <span class="role-badge ms-2">Role: {{ role }}</span>
         <button
           class="btn btn-odoo"
@@ -77,7 +84,16 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
               <td (click)="openDetail(task)" style="cursor:pointer">
                 {{ task.title }}
               </td>
-              <td>{{ task.assignee }}</td>
+              <td>
+                <div *ngIf="getAssigneeDetails(task.assignee).name !== task.assignee; else unassigned">
+                  <span class="fw-bold">{{ getAssigneeDetails(task.assignee).name }}</span>
+                  <div class="text-muted small">{{ getAssigneeDetails(task.assignee).email }}</div>
+                  <div class="text-muted small">{{ getAssigneeDetails(task.assignee).department }}</div>
+                </div>
+                <ng-template #unassigned>
+                  <span class="text-muted">Unassigned</span>
+                </ng-template>
+              </td>
               <td>{{ task.dueDate }}</td>
               <td>
                 <span
@@ -121,13 +137,24 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
       </div>
       <!-- Mobile Timeline Layout -->
       <div class="timeline-mobile d-block d-sm-none">
-        <div *ngFor="let task of filteredTasks(); let i = index" class="timeline-step position-relative mb-4">
-          <div class="timeline-dot position-absolute top-0 start-0 translate-middle"></div>
-          <div class="timeline-line position-absolute start-0" *ngIf="i < filteredTasks().length - 1"></div>
+        <div
+          *ngFor="let task of filteredTasks(); let i = index"
+          class="timeline-step position-relative mb-4"
+        >
+          <div
+            class="timeline-dot position-absolute top-0 start-0 translate-middle"
+          ></div>
+          <div
+            class="timeline-line position-absolute start-0"
+            *ngIf="i < filteredTasks().length - 1"
+          ></div>
           <div class="ms-4 ps-2 pb-2">
             <div class="d-flex align-items-center gap-2 mb-1">
-              <span class="fw-bold text-primary" style="font-size:1.1em;">{{ task.title }}</span>
-              <span class="badge"
+              <span class="fw-bold text-primary" style="font-size:1.1em;">{{
+                task.title
+              }}</span>
+              <span
+                class="badge"
                 [ngClass]="{
                   'bg-warning text-dark': task.status === 'Pending',
                   'bg-info text-dark': task.status === 'In Progress',
@@ -142,11 +169,14 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
               <span>{{ task.dueDate }}</span>
             </div>
             <div class="mb-1 small text-secondary">
-              <i class="fas fa-user me-1"></i>Assignee: {{ task.assignee }}
+              <i class="fas fa-user me-1"></i>Assignee: {{ getAssigneeDetails(task.assignee).name }}
+              <div class="text-muted small">{{ getAssigneeDetails(task.assignee).email }}</div>
+              <div class="text-muted small">{{ getAssigneeDetails(task.assignee).department }}</div>
             </div>
             <div class="mb-2 small text-muted">
               <i class="fas fa-bolt me-1"></i>Priority:
-              <span class="badge ms-1"
+              <span
+                class="badge ms-1"
                 [ngClass]="{
                   'bg-danger': task.priority === 'High',
                   'bg-secondary': task.priority === 'Medium',
@@ -173,7 +203,10 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
             </div>
           </div>
         </div>
-        <div *ngIf="filteredTasks().length === 0" class="text-center text-muted py-4">
+        <div
+          *ngIf="filteredTasks().length === 0"
+          class="text-center text-muted py-4"
+        >
           No tasks found.
         </div>
       </div>
@@ -203,6 +236,7 @@ import { AuthService, UserRole } from '../../../core/services/auth.service';
               (submitTask)="saveTask($event)"
               (cancel)="closeTaskForm()"
               [readonly]="!isAdminOrHR"
+              [isModal]="true"
             ></app-task-form>
           </div>
         </div>
@@ -249,10 +283,14 @@ export class TaskListComponent implements OnInit {
   isAdminOrHR = false;
   selectedTaskId: number | null = null;
   showAddTaskFormForEmployee = false;
+  employees: IEmployee[] = [];
 
-  constructor(private taskService: TaskService, private auth: AuthService) {}
+  constructor(private taskService: TaskService, private auth: AuthService, private employeeService: EmployeeService) {}
 
   ngOnInit() {
+    this.employeeService.getEmployees().subscribe((emps) => {
+      this.employees = emps;
+    });
     this.taskService.getTasks().subscribe((tasks) => {
       this.tasks = tasks;
       // For Employee: auto-select the first task if none selected
@@ -388,5 +426,10 @@ export class TaskListComponent implements OnInit {
       this.selectedTaskId = task.id;
       this.selectedTask = { ...task };
     }
+  }
+
+  getAssigneeDetails(assigneeId: string | number): { name: string, email?: string, department?: string } {
+    const emp = this.employees.find(e => String(e.id) === String(assigneeId));
+    return emp ? { name: emp.name, email: emp.email, department: emp.department } : { name: String(assigneeId) };
   }
 }

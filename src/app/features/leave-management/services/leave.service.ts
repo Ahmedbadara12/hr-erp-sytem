@@ -90,8 +90,14 @@ export class LeaveService {
     return of(newLeave);
   }
 
+  applyLeave(leave: Partial<ILeaveRequest>): Observable<ILeaveRequest> {
+    return this.addLeave(leave);
+  }
+
   approveLeave(id: number): void {
-    const role = this.auth['getStoredRole'] ? this.auth['getStoredRole']() : null;
+    const role = this.auth['getStoredRole']
+      ? this.auth['getStoredRole']()
+      : null;
     if (role !== 'HR' && role !== 'Admin') {
       this.notification.show('danger', 'Only HR or Admin can approve leave!');
       return;
@@ -105,7 +111,9 @@ export class LeaveService {
   }
 
   rejectLeave(id: number): void {
-    const role = this.auth['getStoredRole'] ? this.auth['getStoredRole']() : null;
+    const role = this.auth['getStoredRole']
+      ? this.auth['getStoredRole']()
+      : null;
     if (role !== 'HR' && role !== 'Admin') {
       this.notification.show('danger', 'Only HR or Admin can reject leave!');
       return;

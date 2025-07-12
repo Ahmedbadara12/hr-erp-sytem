@@ -85,6 +85,10 @@ export class EmployeeService {
     return of(newEmployee);
   }
 
+  createEmployee(employee: IEmployee): Observable<IEmployee> {
+    return this.addEmployee(employee);
+  }
+
   updateEmployee(
     id: number,
     employee: IEmployee
