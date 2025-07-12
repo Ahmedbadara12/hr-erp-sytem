@@ -1,25 +1,36 @@
 # HR ERP System
 
-A modern Angular-based HR ERP system with role-based access, employee/leave/payroll/task management, and a beautiful Bootstrap UI.
+A modern Angular-based HR ERP system with advanced role-based access, employee/leave/payroll/task management, and a beautiful, highly responsive UI.
 
 ## Features
 - **Role-based access:** Admin, HR, Employee, Project Manager
 - **Employee, Leave, Payroll, and Task Management**
-- **Bootstrap 5 UI:** Modern, clean, and consistent
-- **Responsive Design:** Mobile-friendly layout, responsive sidebar/topbar, and adaptive tables
+- **Modern UI/UX:** Consistent site colors, card-based mobile layouts, action buttons above forms, and visually distinct button containers
+- **Responsive Design:** Mobile-first, adaptive breakpoints, card/table switching, and touch-friendly controls
 - **SSR/Prerender-ready:** Works with Angular SSR and static hosting (Netlify, Vercel)
+
+## UI/UX Highlights
+- **Card-based Mobile Layouts:** Lists (Employee, Leave, etc.) display as cards on mobile for clarity and touch usability, while using tables on desktop.
+- **Action Buttons Above Forms:** All main forms (Employee, Leave Apply, Task, Login) have their action buttons (Save, Submit, etc.) positioned above the form fields for better visibility and UX.
+- **Button Containers:** Action buttons in lists are grouped in visually distinct containers with background, padding, and rounded corners for clarity.
+- **Improved Desktop Action Buttons:** Approve/Reject and similar actions are styled as large, pill-shaped, gradient buttons with no text wrapping and clear spacing.
+- **Consistent Font Sizes:** All text and controls use scalable, readable font sizes across breakpoints.
+- **Role-based Navigation:** Sidebar and routes adapt to user role, showing only relevant features.
 
 ## Responsive Design
 
 The app is fully responsive and mobile-friendly:
 
-- **Bootstrap Grid & Utilities:** All layouts use Bootstrap's grid system and responsive utility classes for adaptive spacing, alignment, and visibility.
-- **Responsive Sidebar & Topbar:**
-  - On desktop, a sidebar is shown for navigation.
-  - On mobile, the sidebar collapses into an off-canvas menu, toggled by a hamburger button in the top navbar.
-  - The top navbar is always visible on mobile for quick access.
-- **Tables:** All main tables (e.g., Employee List) are wrapped in `.table-responsive` for horizontal scrolling on small screens.
-- **Cards & Forms:** Use full width on mobile and are centered with appropriate spacing.
+- **Mobile-first breakpoints:** Custom breakpoints at 480px, 768px, 992px, 1200px, and 1400px for optimal scaling.
+- **Sidebar & Topbar:**
+  - Desktop: Sidebar navigation
+  - Mobile: Off-canvas sidebar, always-visible top navbar
+- **Tables & Cards:**
+  - Tables on desktop, card lists on mobile for key features
+  - All tables are wrapped in `.table-responsive` for horizontal scrolling if needed
+- **Buttons & Forms:**
+  - Buttons are large, touch-friendly, and consistently styled
+  - Forms are centered, full-width on mobile, and have action buttons above fields
 - **Tested on multiple screen sizes** for usability and appearance.
 
 ## Getting Started
@@ -46,7 +57,7 @@ The app is fully responsive and mobile-friendly:
 - **Vercel:** Use the static output or SSR as needed. The app is SSR-safe and guards against browser-only APIs.
 
 ## Customization
-- **Bootstrap theming:** Customize `src/styles.scss` for colors, spacing, and breakpoints.
+- **Bootstrap theming & global styles:** Customize `src/styles.scss` for colors, spacing, breakpoints, and UI tweaks.
 - **Add new features:** Use the provided structure in `src/app/features/` for new modules/components.
 
 ## License
