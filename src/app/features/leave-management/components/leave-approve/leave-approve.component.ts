@@ -97,7 +97,6 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
     `
       .leave-approve-table-card {
         padding: 2rem 1.5rem;
-        background: #fff;
         border-radius: 1.5rem;
         box-shadow: 0 4px 24px rgba(124, 58, 237, 0.10);
         margin-bottom: 2.5rem;
@@ -175,18 +174,16 @@ import { AuthService, UserRole } from '../../../../core/services/auth.service';
         background: #f8f7fc;
       }
       .table-striped > tbody > tr:hover {
-        background: #ede9fe;
         transition: background 0.2s;
       }
       .leave-approve-table thead th {
         position: sticky;
         top: 0;
-        background: #ede9fe;
+        
         z-index: 2;
       }
       /* Mobile Card Styles */
       .leave-card {
-        background: #f8f7fc;
         border-radius: 1.1em;
         box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
         padding: 1.1em 1em 0.7em 1em;
