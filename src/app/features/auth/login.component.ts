@@ -168,23 +168,28 @@ import { InputComponent } from '../../shared/components/input/input.component';
   styles: [
     `
       .login-container {
-        min-height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
+        background: var(--background);
+        padding: 0;
       }
 
       .login-card {
-        background: rgba(255, 255, 255, 0.95);
+        background: var(--surface-primary);
         backdrop-filter: blur(10px);
         border-radius: 1.5rem;
-        padding: 3rem;
+        padding: 2.5rem 2rem;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         width: 100%;
         max-width: 450px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid var(--border-light);
+        margin: 0;
       }
 
       .login-header {
@@ -195,7 +200,11 @@ import { InputComponent } from '../../shared/components/input/input.component';
       .login-logo {
         width: 80px;
         height: 80px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(
+          135deg,
+          var(--primary-light) 0%,
+          var(--primary) 100%
+        );
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -207,14 +216,14 @@ import { InputComponent } from '../../shared/components/input/input.component';
       }
 
       .login-title {
-        color: #2d3748;
+        color: var(--text-primary);
         font-size: 2rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
       }
 
       .login-subtitle {
-        color: #718096;
+        color: var(--text-secondary);
         font-size: 1.1rem;
       }
 
@@ -230,7 +239,7 @@ import { InputComponent } from '../../shared/components/input/input.component';
         display: flex;
         align-items: center;
         font-weight: 700;
-        color: #000000;
+        color: var(--text-primary);
         margin-bottom: 0.5rem;
         font-size: 0.95rem;
         text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
@@ -245,7 +254,7 @@ import { InputComponent } from '../../shared/components/input/input.component';
       .form-control {
         width: 100%;
         padding: 0.75rem 1rem;
-        border: 2px solid #e2e8f0;
+        border: 2px solid var(--border-light);
         border-radius: 0.75rem;
         font-size: 1rem;
         transition: all 0.3s ease;

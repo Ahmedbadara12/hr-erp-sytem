@@ -266,7 +266,162 @@ import { IEmployee } from '../../../shared/models/employee.model';
     </div>
     <div class="modal-backdrop fade show" *ngIf="showTaskDetail"></div>
   `,
-  styles: [],
+  styles: [
+    `
+      .table-card {
+        background: var(--surface-primary);
+        border-radius: 1.3em;
+        box-shadow: 0 8px 32px rgba(124, 58, 237, 0.10);
+        padding: 2.2em 1.5em 1.5em 1.5em;
+        margin: 2.5em auto 0 auto;
+        max-width: 1100px;
+        color: var(--text-primary);
+      }
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 0.5em;
+      }
+      .role-badge {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        border-radius: 1em;
+        padding: 0.4em 1em;
+        font-weight: 600;
+        font-size: 1em;
+        margin-left: 1em;
+      }
+      .btn-odoo, .btn-outline-primary, .btn-outline-danger {
+        height: 44px;
+        min-width: 120px;
+        padding: 0 1.25em;
+        font-size: 1.08em;
+        border-radius: 0.8em;
+        margin: 0 0.3em 0.3em 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        box-sizing: border-box;
+      }
+      .btn-odoo i, .btn-outline-primary i, .btn-outline-danger i {
+        margin-right: 0.5em;
+      }
+      .form-select, .form-control {
+        border-radius: 0.8em;
+        background: var(--surface-secondary);
+        color: var(--text-primary);
+        border: 1.5px solid var(--border-light);
+        font-size: 1.05em;
+        padding: 0.7em 1em;
+        margin-bottom: 0.5em;
+      }
+      .form-select:focus, .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-light);
+        outline: none;
+      }
+      .table th, .table td {
+        vertical-align: middle;
+        border-top: 1.5px solid var(--border-light);
+      }
+      .table th {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        font-weight: 800;
+        font-size: 1.12em;
+        border-bottom: 2px solid var(--primary);
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      .table td {
+        background: var(--surface-secondary);
+        color: var(--text-primary);
+        font-size: 1.05em;
+      }
+      .table-hover tbody tr:hover {
+        background: var(--surface-tertiary);
+      }
+      .badge {
+        border-radius: 1em;
+        font-size: 1em;
+        font-weight: 700;
+        padding: 0.45em 1.2em;
+        letter-spacing: 0.01em;
+        box-shadow: 0 1px 4px rgba(124, 58, 237, 0.04);
+      }
+      .btn-outline-primary {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        transition: background 0.2s, color 0.2s;
+      }
+      .btn-outline-primary:hover {
+        background: var(--primary-dark);
+        color: #fff;
+      }
+      .btn-outline-danger {
+        background: var(--danger);
+        color: #fff;
+        border: none;
+        transition: background 0.2s, color 0.2s;
+      }
+      .btn-outline-danger:hover {
+        background: #991b1b;
+        color: #fff;
+      }
+      .table-active {
+        background: var(--surface-tertiary) !important;
+      }
+      .timeline-mobile {
+        margin-top: 2em;
+      }
+      .timeline-step {
+        background: var(--surface-primary);
+        border-radius: 1.1em;
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+        padding: 1.1em 1em 0.7em 1em;
+        margin-bottom: 1.2em;
+        border: 1px solid var(--border-light);
+      }
+      .timeline-dot {
+        width: 18px;
+        height: 18px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        border: 2.5px solid var(--primary);
+        left: -9px;
+        top: 0.5em;
+        z-index: 2;
+      }
+      .timeline-line {
+        width: 3px;
+        background: var(--primary-light);
+        left: -2px;
+        top: 1.5em;
+        bottom: 0;
+        position: absolute;
+        z-index: 1;
+      }
+      .d-flex.gap-2 > * {
+        margin-right: 0.5em;
+      }
+      @media (max-width: 900px) {
+        .table-card {
+          padding: 1.2em 0.5em 1em 0.5em;
+        }
+      }
+      @media (max-width: 600px) {
+        .table-card {
+          padding: 0.5em 0.1em 0.5em 0.1em;
+        }
+        .section-title {
+          font-size: 1.15rem;
+        }
+      }
+    `
+  ],
   imports: [CommonModule, FormsModule, TaskFormComponent, TaskDetailComponent],
 })
 export class TaskListComponent implements OnInit {

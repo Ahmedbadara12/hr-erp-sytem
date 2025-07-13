@@ -338,179 +338,299 @@
             </div>
             <span class="mobile-logout-text">Sign Out</span>
           </button>
+          <button
+            class="sidebar-mode-toggle"
+            (click)="toggleTheme()"
+            [attr.aria-label]="
+              isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'
+            "
+          >
+            <i *ngIf="isDarkMode" class="fas fa-sun"></i>
+            <i *ngIf="!isDarkMode" class="fas fa-moon"></i>
+            <span>{{ isDarkMode ? "Light Mode" : "Dark Mode" }}</span>
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Desktop Sidebar (unchanged) -->
-    <nav
-      class="sidebar d-none d-md-flex flex-column align-items-center py-4 px-2"
+    <!-- Modern Desktop Sidebar (same as mobile, but always visible on desktop) -->
+    <div
+      class="mobile-sidebar d-none d-md-flex flex-column"
+      style="min-width: 320px; max-width: 340px"
     >
-      <div
-        class="mb-4 w-100 d-flex flex-column align-items-center justify-content-center"
-      >
-        <a class="navbar-brand fs-4 fw-bold d-flex align-items-center" href="#">
-          <i class="fas fa-cubes me-2"></i> HR ERP
-        </a>
-        <div
-          *ngIf="isLoggedIn$ | async"
-          class="text-center small text-white fw-bold w-100 mt-2"
-        >
-          Welcome, {{ username$ | async }}!
+      <div class="mobile-sidebar-header">
+        <div class="mobile-sidebar-brand">
+          <div class="sidebar-brand-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="sidebar-brand-text">
+            <h2 class="sidebar-brand-title">HR ERP</h2>
+            <p class="sidebar-brand-subtitle">Management System</p>
+          </div>
         </div>
       </div>
-      <span class="role-badge mb-3">{{ role$ | async }}</span>
-      <ul class="nav flex-column w-100">
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Admin'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/payroll"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-money-check-alt me-2"></i> Payroll
-          </a>
-        </li>
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Admin'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/employee"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-users me-2"></i> Employees
-          </a>
-        </li>
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Admin'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/leave"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-calendar-alt me-2"></i> Leave
-          </a>
-        </li>
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Admin'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/leave-approve"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-calendar-check me-2"></i> Leave Approve
-          </a>
-        </li>
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'HR'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/employee"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-users me-2"></i> Employees
-          </a>
-        </li>
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'HR'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/leave"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-calendar-alt me-2"></i> Leave
-          </a>
-        </li>
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'HR'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/leave-approve"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-calendar-check me-2"></i> Leave Approve
-          </a>
-        </li>
-        <!-- Leave link for Employee only (desktop) -->
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'Employee'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/leave"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-calendar-alt me-2"></i> Leave
-          </a>
-        </li>
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'ProjectManager'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/employee"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-users me-2"></i> Employees
-          </a>
-        </li>
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'ProjectManager'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/tasks"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-clipboard-list me-2"></i> Tasks
-          </a>
-        </li>
-        <li class="nav-item mb-2" *ngIf="(role$ | async) === 'ProjectManager'">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/leave"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-calendar-alt me-2"></i> Leave
-          </a>
-        </li>
-        <li
-          class="nav-item mb-2"
-          *ngIf="
-            (role$ | async) === 'Admin' ||
-            (role$ | async) === 'HR' ||
-            (role$ | async) === 'Employee' ||
-            (role$ | async) === 'ProjectManager'
-          "
-        >
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/tasks"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-clipboard-list me-2"></i> Tasks
-          </a>
-        </li>
-        <li
-          class="nav-item mb-2"
-          *ngIf="
-            (role$ | async) === 'Admin' ||
-            (role$ | async) === 'HR' ||
-            (role$ | async) === 'Employee' ||
-            (role$ | async) === 'ProjectManager'
-          "
-        >
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/learning"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-graduation-cap me-2"></i> Learning
-          </a>
-        </li>
-        <li class="nav-item mb-2">
-          <a
-            class="nav-link d-flex align-items-center"
-            routerLink="/profile"
-            routerLinkActive="active"
-          >
-            <i class="fas fa-user-circle me-2"></i> Profile
-          </a>
-        </li>
-        <li class="nav-item mt-3 px-3">
-          <button class="btn btn-outline-light w-100" (click)="logout()">
-            <i class="fas fa-sign-out-alt me-2"></i> Logout
+      <div class="mobile-sidebar-body">
+        <div class="mobile-user-info">
+          <div class="mobile-user-avatar">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <div class="mobile-user-details">
+            <h3 class="mobile-user-name">{{ username$ | async }}</h3>
+            <span class="mobile-user-role">{{ role$ | async }}</span>
+          </div>
+        </div>
+        <div class="mobile-nav-sections">
+          <!-- Admin Navigation -->
+          <ng-container *ngIf="(role$ | async) === 'Admin'">
+            <div class="mobile-nav-section">
+              <h4 class="mobile-nav-section-title">
+                <i class="fas fa-shield-alt"></i>
+                Administration
+              </h4>
+              <div class="mobile-nav-items">
+                <a
+                  class="mobile-nav-item"
+                  routerLink="/payroll"
+                  routerLinkActive="active"
+                >
+                  <div class="mobile-nav-icon">
+                    <i class="fas fa-money-check-alt"></i>
+                  </div>
+                  <div class="mobile-nav-text">
+                    <span class="mobile-nav-label">Payroll</span>
+                    <span class="mobile-nav-description"
+                      >Manage payroll records</span
+                    >
+                  </div>
+                  <div class="mobile-nav-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                  </div>
+                </a>
+                <a
+                  class="mobile-nav-item"
+                  routerLink="/employee"
+                  routerLinkActive="active"
+                >
+                  <div class="mobile-nav-icon">
+                    <i class="fas fa-users"></i>
+                  </div>
+                  <div class="mobile-nav-text">
+                    <span class="mobile-nav-label">Employees</span>
+                    <span class="mobile-nav-description"
+                      >Manage employee data</span
+                    >
+                  </div>
+                  <div class="mobile-nav-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </ng-container>
+          <!-- HR Navigation -->
+          <ng-container *ngIf="(role$ | async) === 'HR'">
+            <div class="mobile-nav-section">
+              <h4 class="mobile-nav-section-title">
+                <i class="fas fa-user-tie"></i>
+                HR Management
+              </h4>
+              <div class="mobile-nav-items">
+                <a
+                  class="mobile-nav-item"
+                  routerLink="/employee"
+                  routerLinkActive="active"
+                >
+                  <div class="mobile-nav-icon">
+                    <i class="fas fa-users"></i>
+                  </div>
+                  <div class="mobile-nav-text">
+                    <span class="mobile-nav-label">Employees</span>
+                    <span class="mobile-nav-description"
+                      >Manage employee data</span
+                    >
+                  </div>
+                  <div class="mobile-nav-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                  </div>
+                </a>
+                <a
+                  class="mobile-nav-item"
+                  routerLink="/leave-approve"
+                  routerLinkActive="active"
+                >
+                  <div class="mobile-nav-icon">
+                    <i class="fas fa-calendar-check"></i>
+                  </div>
+                  <div class="mobile-nav-text">
+                    <span class="mobile-nav-label">Leave Approvals</span>
+                    <span class="mobile-nav-description"
+                      >Review leave requests</span
+                    >
+                  </div>
+                  <div class="mobile-nav-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </ng-container>
+          <!-- Employee Navigation -->
+          <ng-container *ngIf="(role$ | async) === 'Employee'">
+            <div class="mobile-nav-section">
+              <h4 class="mobile-nav-section-title">
+                <i class="fas fa-user"></i>
+                Employee Tools
+              </h4>
+              <div class="mobile-nav-items">
+                <a
+                  class="mobile-nav-item"
+                  routerLink="/profile"
+                  routerLinkActive="active"
+                >
+                  <div class="mobile-nav-icon">
+                    <i class="fas fa-user-circle"></i>
+                  </div>
+                  <div class="mobile-nav-text">
+                    <span class="mobile-nav-label">My Profile</span>
+                    <span class="mobile-nav-description"
+                      >View and edit profile</span
+                    >
+                  </div>
+                  <div class="mobile-nav-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                  </div>
+                </a>
+                <a
+                  class="mobile-nav-item"
+                  routerLink="/leave"
+                  routerLinkActive="active"
+                >
+                  <div class="mobile-nav-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                  </div>
+                  <div class="mobile-nav-text">
+                    <span class="mobile-nav-label">Leave Management</span>
+                    <span class="mobile-nav-description">Apply for leave</span>
+                  </div>
+                  <div class="mobile-nav-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </ng-container>
+          <!-- Project Manager Navigation -->
+          <ng-container *ngIf="(role$ | async) === 'ProjectManager'">
+            <div class="mobile-nav-section">
+              <h4 class="mobile-nav-section-title">
+                <i class="fas fa-project-diagram"></i>
+                Project Management
+              </h4>
+              <div class="mobile-nav-items">
+                <a
+                  class="mobile-nav-item"
+                  routerLink="/employee"
+                  routerLinkActive="active"
+                >
+                  <div class="mobile-nav-icon">
+                    <i class="fas fa-users"></i>
+                  </div>
+                  <div class="mobile-nav-text">
+                    <span class="mobile-nav-label">Team Members</span>
+                    <span class="mobile-nav-description"
+                      >View team members</span
+                    >
+                  </div>
+                  <div class="mobile-nav-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                  </div>
+                </a>
+                <a
+                  class="mobile-nav-item"
+                  routerLink="/tasks"
+                  routerLinkActive="active"
+                >
+                  <div class="mobile-nav-icon">
+                    <i class="fas fa-tasks"></i>
+                  </div>
+                  <div class="mobile-nav-text">
+                    <span class="mobile-nav-label">Project Tasks</span>
+                    <span class="mobile-nav-description"
+                      >Manage project tasks</span
+                    >
+                  </div>
+                  <div class="mobile-nav-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </ng-container>
+          <!-- Common Navigation -->
+          <div class="mobile-nav-section">
+            <h4 class="mobile-nav-section-title">
+              <i class="fas fa-tools"></i>
+              Tools & Features
+            </h4>
+            <div class="mobile-nav-items">
+              <a
+                class="mobile-nav-item"
+                routerLink="/tasks"
+                routerLinkActive="active"
+              >
+                <div class="mobile-nav-icon">
+                  <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="mobile-nav-text">
+                  <span class="mobile-nav-label">Tasks</span>
+                  <span class="mobile-nav-description">Manage your tasks</span>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </a>
+              <a
+                class="mobile-nav-item"
+                routerLink="/learning"
+                routerLinkActive="active"
+              >
+                <div class="mobile-nav-icon">
+                  <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="mobile-nav-text">
+                  <span class="mobile-nav-label">Learning</span>
+                  <span class="mobile-nav-description"
+                    >Access training courses</span
+                  >
+                </div>
+                <div class="mobile-nav-arrow">
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="mobile-sidebar-footer">
+          <button class="mobile-logout-btn" (click)="logout()">
+            <div class="mobile-logout-icon">
+              <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <span class="mobile-logout-text">Sign Out</span>
           </button>
-        </li>
-      </ul>
-    </nav>
+          <button
+            class="sidebar-mode-toggle"
+            (click)="toggleTheme()"
+            [attr.aria-label]="
+              isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'
+            "
+          >
+            <i *ngIf="isDarkMode" class="fas fa-sun"></i>
+            <i *ngIf="!isDarkMode" class="fas fa-moon"></i>
+            <span>{{ isDarkMode ? "Light Mode" : "Dark Mode" }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </ng-container>
 
   <!-- Main Content -->

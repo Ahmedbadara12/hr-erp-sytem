@@ -105,8 +105,35 @@ import { CsvUtilService } from '../../../../shared/services/csv-util.service';
       .table th {
         vertical-align: middle;
       }
+      .table-card {
+        background: var(--surface-primary);
+        border-radius: 1.1em;
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.06);
+        padding: 1.5em 1em;
+        margin-bottom: 1.5em;
+        border: 1px solid var(--border-light);
+      }
+      .table {
+        background: var(--surface-primary);
+        color: var(--text-primary);
+      }
+      .table th,
+      .table td {
+        background: var(--surface-primary);
+        color: var(--text-primary);
+      }
+      .table-light th {
+        background: var(--surface-secondary);
+        color: var(--text-primary);
+      }
+      .table-striped tbody tr:nth-of-type(odd) {
+        background: var(--surface-secondary);
+      }
+      .table-striped tbody tr:nth-of-type(even) {
+        background: var(--surface-primary);
+      }
       .action-btn-container {
-        background: #f3f0ff;
+        background: var(--surface-secondary);
         border-radius: 1.1em;
         box-shadow: 0 2px 8px rgba(124, 58, 237, 0.06);
         padding: 0.7em 1em;
@@ -115,14 +142,52 @@ import { CsvUtilService } from '../../../../shared/services/csv-util.service';
         flex-wrap: wrap;
         gap: 0.7em;
       }
+      .btn-info {
+        background: var(--primary-light) !important;
+        color: var(--primary-dark) !important;
+        border: none;
+      }
+      .btn-info:hover {
+        background: var(--primary) !important;
+        color: #fff !important;
+      }
+      .btn-warning {
+        background: var(--warning, #fde68a) !important;
+        color: #92400e !important;
+        border: none;
+      }
+      .btn-warning:hover {
+        background: #fbbf24 !important;
+        color: #fff !important;
+      }
+      .btn-danger {
+        background: var(--danger, #ef4444) !important;
+        color: #fff !important;
+        border: none;
+      }
+      .btn-danger:hover {
+        background: #b91c1c !important;
+        color: #fff !important;
+      }
+      .action-btn-container .btn-outline-secondary {
+        color: var(--primary) !important;
+        background: var(--surface-primary) !important;
+        border: 1.5px solid var(--primary) !important;
+        font-weight: 600;
+      }
+      .action-btn-container .btn-outline-secondary:hover {
+        background: var(--primary) !important;
+        color: #fff !important;
+        border: 1.5px solid var(--primary) !important;
+      }
       /* Mobile Card Styles */
       .employee-card {
-        background: #f8f7fc;
+        background: var(--surface-secondary);
         border-radius: 1.1em;
         box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
         padding: 1.1em 1em 0.7em 1em;
         margin-bottom: 1.2em;
-        border: 1px solid #ede9fe;
+        border: 1px solid var(--border-light);
       }
       .employee-card-body {
         display: flex;

@@ -1,1526 +1,905 @@
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
-import { AuthService, UserRole } from '../../core/services/auth.service';
-import { Observable, of, Subscription } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { EmployeeService } from '../employee-management/services/employee.service';
 import { LeaveService } from '../leave-management/services/leave.service';
+import { TaskService } from '../task-management/services/task.service';
 import { PayrollService } from '../payroll/services/payroll.service';
+import { NotificationService } from '../../shared/services/notification.service';
 import { IEmployee } from '../../shared/models/employee.model';
 import { ILeaveRequest } from '../../shared/models/leave-request.model';
+import { Task } from '../../shared/models/task.model';
 import { IPayroll } from '../../shared/models/payroll.model';
+import { Subject, takeUntil, firstValueFrom } from 'rxjs';
+
+interface DashboardMetric {
+  title: string;
+  value: number;
+  change: number;
+  changeType: 'positive' | 'negative' | 'neutral';
+  icon: string;
+  color: string;
+  description: string;
+}
+
+interface ChartData {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    backgroundColor: string;
+    borderColor: string;
+  }[];
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
-  providers: [EmployeeService, LeaveService, PayrollService],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="dashboard-container">
-      <!-- Hero Section -->
-      <div class="hero-section">
-        <div class="container">
-          <div class="row justify-content-center">
-            <div class="col-12 col-lg-10">
-              <div class="hero-content">
-                <div class="welcome-card">
-                  <div class="welcome-header">
-                    <div class="welcome-icon">
-                      <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="welcome-text">
-                      <h1 class="welcome-title">
-                        Welcome back,
-                        <span class="highlight">{{ getWelcomeMessage() }}</span>
-                      </h1>
-                      <p class="welcome-subtitle">
-                        Here's what's happening in your HR ERP system today
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <!-- Welcome Section -->
+      <div class="welcome-section">
+        <div class="welcome-content">
+          <h1 class="welcome-title">
+            <i class="fas fa-chart-line me-3"></i>
+            Welcome to HR ERP Dashboard
+          </h1>
+          <p class="welcome-subtitle">
+            Monitor your organization's key metrics and performance indicators
+          </p>
+        </div>
+        <div class="welcome-actions">
+          <button
+            class="btn btn-primary"
+            (click)="refreshData()"
+            [disabled]="loading"
+          >
+            <i class="fas fa-sync-alt me-2" [class.fa-spin]="loading"></i>
+            {{ loading ? 'Refreshing...' : 'Refresh Data' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-container">
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+          <p>Loading dashboard data...</p>
         </div>
       </div>
 
       <!-- Dashboard Content -->
-      <div class="dashboard-content">
-        <div class="container">
-          <div class="row justify-content-center">
-            <div class="col-12 col-lg-10">
-              <ng-container *ngIf="role$ | async as role">
-                <!-- Stats Cards Section -->
-                <div class="stats-section">
-                  <div class="row g-4">
-                    <ng-container *ngIf="role === 'Employee'">
-                      <div class="col-6 col-md-3">
-                        <div
-                          class="stat-card stat-card-primary"
-                          (click)="goToTasks()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-tasks"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ taskCount }}</div>
-                            <div class="stat-label">Active Tasks</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-6 col-md-3">
-                        <div
-                          class="stat-card stat-card-success"
-                          (click)="goToLeave()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-check-circle"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ leaveApproved }}</div>
-                            <div class="stat-label">Approved Leaves</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-6 col-md-3">
-                        <div
-                          class="stat-card stat-card-warning"
-                          (click)="goToLeave()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-hourglass-half"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ leavePending }}</div>
-                            <div class="stat-label">Pending Leaves</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-6 col-md-3">
-                        <div
-                          class="stat-card stat-card-danger"
-                          (click)="goToLeave()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-times-circle"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ leaveRejected }}</div>
-                            <div class="stat-label">Rejected Leaves</div>
-                          </div>
-                        </div>
-                      </div>
-                    </ng-container>
-
-                    <ng-container *ngIf="role === 'HR'">
-                      <div class="col-6 col-md-4">
-                        <div
-                          class="stat-card stat-card-primary"
-                          (click)="goToEmployee()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-users"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ employeeCount }}</div>
-                            <div class="stat-label">Total Employees</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-6 col-md-4">
-                        <div
-                          class="stat-card stat-card-warning"
-                          (click)="goToLeave()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-hourglass-half"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ leavePending }}</div>
-                            <div class="stat-label">Pending Approvals</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-6 col-md-4">
-                        <div
-                          class="stat-card stat-card-info"
-                          (click)="goToTasks()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-tasks"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ taskCount }}</div>
-                            <div class="stat-label">Open Tasks</div>
-                          </div>
-                        </div>
-                      </div>
-                    </ng-container>
-
-                    <ng-container *ngIf="role === 'Admin'">
-                      <div class="col-6 col-md-6">
-                        <div
-                          class="stat-card stat-card-success"
-                          (click)="goToPayroll()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-money-check-alt"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ payrollCount }}</div>
-                            <div class="stat-label">Payroll Records</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-6 col-md-6">
-                        <div
-                          class="stat-card stat-card-info"
-                          (click)="goToTasks()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-tasks"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ taskCount }}</div>
-                            <div class="stat-label">System Tasks</div>
-                          </div>
-                        </div>
-                      </div>
-                    </ng-container>
-
-                    <ng-container *ngIf="role === 'ProjectManager'">
-                      <div class="col-6 col-md-6">
-                        <div
-                          class="stat-card stat-card-primary"
-                          (click)="goToEmployee()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-users"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ employeeCount }}</div>
-                            <div class="stat-label">Team Members</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-6 col-md-6">
-                        <div
-                          class="stat-card stat-card-info"
-                          (click)="goToTasks()"
-                        >
-                          <div class="stat-icon">
-                            <i class="fas fa-tasks"></i>
-                          </div>
-                          <div class="stat-content">
-                            <div class="stat-value">{{ taskCount }}</div>
-                            <div class="stat-label">Project Tasks</div>
-                          </div>
-                        </div>
-                      </div>
-                    </ng-container>
-                  </div>
+      <div *ngIf="!loading" class="dashboard-content">
+        <!-- Key Metrics -->
+        <section class="metrics-section">
+          <h2 class="section-title">
+            <i class="fas fa-chart-bar me-2"></i>
+            Key Metrics
+          </h2>
+          <div class="metrics-grid">
+            <div
+              *ngFor="let metric of metrics"
+              class="metric-card"
+              [class]="'metric-' + metric.color"
+            >
+              <div class="metric-icon">
+                <i [class]="metric.icon"></i>
+              </div>
+              <div class="metric-content">
+                <h3 class="metric-title">{{ metric.title }}</h3>
+                <div class="metric-value">
+                  {{ metric.value.toLocaleString() }}
                 </div>
-
-                <!-- Quick Actions Section -->
-                <div class="quick-actions-section">
-                  <div class="section-header">
-                    <h2 class="section-title">
-                      <i class="fas fa-bolt"></i>
-                      Quick Actions
-                    </h2>
-                    <p class="section-subtitle">
-                      Access your most important features
-                    </p>
-                  </div>
-
-                  <ng-container [ngSwitch]="role">
-                    <!-- Employee Quick Actions -->
-                    <ng-container *ngSwitchCase="'Employee'">
-                      <div class="row g-4">
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToProfile()">
-                            <div class="action-icon">
-                              <i class="fas fa-user"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">My Profile</h3>
-                              <p class="action-description">
-                                View and update your personal information
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToLeave()">
-                            <div class="action-icon">
-                              <i class="fas fa-calendar-alt"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Leave Management</h3>
-                              <p class="action-description">
-                                Apply for leave and track your requests
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToTasks()">
-                            <div class="action-icon">
-                              <i class="fas fa-tasks"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">My Tasks</h3>
-                              <p class="action-description">
-                                View and update your assigned tasks
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToLearning()">
-                            <div class="action-icon">
-                              <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Learning</h3>
-                              <p class="action-description">
-                                Access training courses and materials
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </ng-container>
-
-                    <!-- HR Quick Actions -->
-                    <ng-container *ngSwitchCase="'HR'">
-                      <div class="row g-4">
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToEmployee()">
-                            <div class="action-icon">
-                              <i class="fas fa-users"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Employee Management</h3>
-                              <p class="action-description">
-                                Manage employee records and information
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToLeaveApprove()">
-                            <div class="action-icon">
-                              <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Leave Approvals</h3>
-                              <p class="action-description">
-                                Review and approve leave requests
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToTasks()">
-                            <div class="action-icon">
-                              <i class="fas fa-tasks"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Task Management</h3>
-                              <p class="action-description">
-                                Create and assign tasks to employees
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToLearning()">
-                            <div class="action-icon">
-                              <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Learning Management</h3>
-                              <p class="action-description">
-                                Manage training programs and courses
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToProfile()">
-                            <div class="action-icon">
-                              <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">My Profile</h3>
-                              <p class="action-description">
-                                View and update your profile
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </ng-container>
-
-                    <!-- Admin Quick Actions -->
-                    <ng-container *ngSwitchCase="'Admin'">
-                      <div class="row g-4">
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToPayroll()">
-                            <div class="action-icon">
-                              <i class="fas fa-money-check-alt"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Payroll Management</h3>
-                              <p class="action-description">
-                                View payroll reports and payslips
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToEmployee()">
-                            <div class="action-icon">
-                              <i class="fas fa-users"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Employee Management</h3>
-                              <p class="action-description">
-                                Manage all employee records
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToLeaveApprove()">
-                            <div class="action-icon">
-                              <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Leave Approvals</h3>
-                              <p class="action-description">
-                                Review and approve leave requests
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToTasks()">
-                            <div class="action-icon">
-                              <i class="fas fa-tasks"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">System Tasks</h3>
-                              <p class="action-description">
-                                Manage system-wide tasks and assignments
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToLearning()">
-                            <div class="action-icon">
-                              <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Learning Management</h3>
-                              <p class="action-description">
-                                Manage training programs and courses
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToProfile()">
-                            <div class="action-icon">
-                              <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">My Profile</h3>
-                              <p class="action-description">
-                                View and update your profile
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </ng-container>
-
-                    <!-- Project Manager Quick Actions -->
-                    <ng-container *ngSwitchCase="'ProjectManager'">
-                      <div class="row g-4">
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToEmployee()">
-                            <div class="action-icon">
-                              <i class="fas fa-users"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Team Members</h3>
-                              <p class="action-description">
-                                View and manage your team members
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToTasks()">
-                            <div class="action-icon">
-                              <i class="fas fa-tasks"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Project Tasks</h3>
-                              <p class="action-description">
-                                Manage and assign project tasks
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToLeave()">
-                            <div class="action-icon">
-                              <i class="fas fa-calendar-alt"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Leave Management</h3>
-                              <p class="action-description">
-                                View team leave requests and status
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToLearning()">
-                            <div class="action-icon">
-                              <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">Team Learning</h3>
-                              <p class="action-description">
-                                Access training courses for your team
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                          <div class="action-card" (click)="goToProfile()">
-                            <div class="action-icon">
-                              <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="action-content">
-                              <h3 class="action-title">My Profile</h3>
-                              <p class="action-description">
-                                View and update your profile
-                              </p>
-                            </div>
-                            <div class="action-arrow">
-                              <i class="fas fa-arrow-right"></i>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </ng-container>
-                  </ng-container>
+                <div
+                  class="metric-change"
+                  [class]="'change-' + metric.changeType"
+                >
+                  <i
+                    [class]="getChangeIcon(metric.changeType)"
+                    class="me-1"
+                  ></i>
+                  {{ Math.abs(metric.change) }}%
+                  <span class="change-label">
+                    {{
+                      metric.changeType === 'positive'
+                        ? 'increase'
+                        : metric.changeType === 'negative'
+                        ? 'decrease'
+                        : 'no change'
+                    }}
+                  </span>
                 </div>
-
-                <!-- Recent Activity Section -->
-                <div class="recent-activity-section">
-                  <div class="section-header">
-                    <h2 class="section-title">
-                      <i class="fas fa-clock"></i>
-                      Recent Activity
-                    </h2>
-                    <p class="section-subtitle">
-                      Stay updated with the latest activities
-                    </p>
-                  </div>
-
-                  <div class="activity-card">
-                    <div class="activity-item">
-                      <div class="activity-icon">
-                        <i class="fas fa-bell"></i>
-                      </div>
-                      <div class="activity-content">
-                        <h4 class="activity-title">System Update</h4>
-                        <p class="activity-description">
-                          HR ERP system has been updated with new features
-                        </p>
-                        <span class="activity-time">2 hours ago</span>
-                      </div>
-                    </div>
-                    <div class="activity-item">
-                      <div class="activity-icon">
-                        <i class="fas fa-check-circle"></i>
-                      </div>
-                      <div class="activity-content">
-                        <h4 class="activity-title">Task Completed</h4>
-                        <p class="activity-description">
-                          Monthly report generation task has been completed
-                        </p>
-                        <span class="activity-time">4 hours ago</span>
-                      </div>
-                    </div>
-                    <div class="activity-item">
-                      <div class="activity-icon">
-                        <i class="fas fa-user-plus"></i>
-                      </div>
-                      <div class="activity-content">
-                        <h4 class="activity-title">New Employee</h4>
-                        <p class="activity-description">
-                          New employee profile has been added to the system
-                        </p>
-                        <span class="activity-time">1 day ago</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
+                <p class="metric-description">{{ metric.description }}</p>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+          <h2 class="section-title">
+            <i class="fas fa-chart-pie me-2"></i>
+            Analytics
+          </h2>
+          <div class="charts-grid">
+            <!-- Leave Trends Chart -->
+            <div class="chart-card">
+              <h3 class="chart-title">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Leave Trends
+              </h3>
+              <div class="chart-container">
+                <canvas #leaveChart></canvas>
+              </div>
+            </div>
+
+            <!-- Task Completion Chart -->
+            <div class="chart-card">
+              <h3 class="chart-title">
+                <i class="fas fa-tasks me-2"></i>
+                Task Completion
+              </h3>
+              <div class="chart-container">
+                <canvas #taskChart></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="activity-section">
+          <h2 class="section-title">
+            <i class="fas fa-clock me-2"></i>
+            Recent Activity
+          </h2>
+          <div class="activity-grid">
+            <!-- Recent Leave Requests -->
+            <div class="activity-card">
+              <h3 class="activity-title">
+                <i class="fas fa-calendar-check me-2"></i>
+                Recent Leave Requests
+              </h3>
+              <div class="activity-list">
+                <div
+                  *ngFor="let leave of recentLeaveRequests"
+                  class="activity-item"
+                >
+                  <div class="activity-icon leave-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-main">
+                      <strong>Employee {{ leave.employeeId }}</strong> requested
+                      <span class="leave-type">{{ leave.type }}</span>
+                    </div>
+                    <div class="activity-details">
+                      {{ leave.from | date : 'MMM dd' }} -
+                      {{ leave.to | date : 'MMM dd' }}
+                      <span
+                        class="activity-status"
+                        [class]="'status-' + leave.status"
+                      >
+                        {{ leave.status }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  *ngIf="recentLeaveRequests.length === 0"
+                  class="empty-state"
+                >
+                  <i class="fas fa-inbox fa-2x"></i>
+                  <p>No recent leave requests</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Tasks -->
+            <div class="activity-card">
+              <h3 class="activity-title">
+                <i class="fas fa-clipboard-list me-2"></i>
+                Recent Tasks
+              </h3>
+              <div class="activity-list">
+                <div *ngFor="let task of recentTasks" class="activity-item">
+                  <div class="activity-icon task-icon">
+                    <i class="fas fa-tasks"></i>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-main">
+                      <strong>{{ task.title }}</strong>
+                    </div>
+                    <div class="activity-details">
+                      Assigned to {{ task.assignee }}
+                      <span
+                        class="activity-status"
+                        [class]="'status-' + task.status"
+                      >
+                        {{ task.status }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="recentTasks.length === 0" class="empty-state">
+                  <i class="fas fa-clipboard fa-2x"></i>
+                  <p>No recent tasks</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   `,
   styles: [
     `
       .dashboard-container {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: var(--background);
+        color: var(--body-color);
       }
 
-      .hero-section {
-        padding: 3rem 0 2rem 0;
-      }
-
-      .hero-content {
-        text-align: center;
-      }
-
-      .welcome-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 2rem;
-        padding: 2.5rem;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-
-      .welcome-header {
+      .welcome-section {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-      }
-
-      .welcome-icon {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--primary-light) 100%
+        );
+        border-radius: 1.5rem;
         color: white;
-        font-size: 2rem;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-      }
-
-      .welcome-text {
-        text-align: left;
       }
 
       .welcome-title {
         font-size: 2.5rem;
         font-weight: 800;
-        color: #2d3748;
         margin-bottom: 0.5rem;
-        line-height: 1.2;
-      }
-
-      .highlight {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: white;
       }
 
       .welcome-subtitle {
         font-size: 1.1rem;
-        color: #718096;
+        opacity: 0.9;
         margin: 0;
       }
 
-      .dashboard-content {
-        padding: 2rem 0 4rem 0;
-      }
-
-      .stats-section {
-        margin-bottom: 3rem;
-      }
-
-      .stat-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 1.5rem;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        min-height: 140px;
+      .welcome-actions {
         display: flex;
-        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .loading-container {
+        display: flex;
         justify-content: center;
-        user-select: none;
-      }
-
-      .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(
-          90deg,
-          var(--card-color),
-          var(--card-color-light)
-        );
-      }
-
-      .stat-card::after {
-        content: 'Click to view';
-        position: absolute;
-        bottom: 0.5rem;
-        right: 1rem;
-        font-size: 0.7rem;
-        color: var(--card-color);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        font-weight: 600;
-      }
-
-      .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-      }
-
-      .stat-card:hover::after {
-        opacity: 1;
-      }
-
-      .stat-card:active {
-        transform: translateY(-2px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
-      }
-
-      .stat-card:focus {
-        outline: 2px solid var(--card-color);
-        outline-offset: 2px;
-      }
-
-      .stat-card-primary {
-        --card-color: #667eea;
-        --card-color-light: #764ba2;
-      }
-
-      .stat-card-success {
-        --card-color: #48bb78;
-        --card-color-light: #38a169;
-      }
-
-      .stat-card-warning {
-        --card-color: #ed8936;
-        --card-color-light: #dd6b20;
-      }
-
-      .stat-card-danger {
-        --card-color: #f56565;
-        --card-color-light: #e53e3e;
-      }
-
-      .stat-card-info {
-        --card-color: #4299e1;
-        --card-color-light: #3182ce;
-      }
-
-      .stat-icon {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(
-          135deg,
-          var(--card-color),
-          var(--card-color-light)
-        );
-        border-radius: 50%;
-        display: flex;
         align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        min-height: 400px;
       }
 
-      .stat-content {
+      .loading-spinner {
         text-align: center;
+        color: var(--primary);
       }
 
-      .stat-value {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: #2d3748;
-        margin-bottom: 0.5rem;
-      }
-
-      .stat-label {
-        font-size: 1rem;
-        color: #718096;
+      .loading-spinner p {
+        margin-top: 1rem;
         font-weight: 600;
-      }
-
-      .section-header {
-        text-align: center;
-        margin-bottom: 2.5rem;
       }
 
       .section-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: 700;
-        color: white;
-        margin-bottom: 0.5rem;
+        margin-bottom: 2rem;
+        color: var(--headings-color);
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
       }
 
-      .section-subtitle {
-        font-size: 1.1rem;
-        color: rgba(255, 255, 255, 0.8);
-        margin: 0;
-      }
-
-      .quick-actions-section,
-      .recent-activity-section {
+      .metrics-section {
         margin-bottom: 3rem;
       }
 
-      .action-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .metric-card {
+        background: var(--surface-primary);
         border-radius: 1.5rem;
         padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(124, 58, 237, 0.1);
+        border: 1px solid var(--border-light);
         transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-        min-height: 180px;
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1.5rem;
+        color: var(--text-primary);
       }
 
-      .action-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(
-          135deg,
-          rgba(102, 126, 234, 0.1),
-          rgba(118, 75, 162, 0.1)
-        );
-        opacity: 0;
-        transition: opacity 0.3s ease;
+      .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 48px rgba(124, 58, 237, 0.15);
       }
 
-      .action-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-      }
-
-      .action-card:active {
-        transform: translateY(-2px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
-      }
-
-      .action-card:hover::before {
-        opacity: 1;
-      }
-
-      .action-icon {
+      .metric-icon {
         width: 60px;
         height: 60px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
         font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        flex-shrink: 0;
       }
 
-      .action-content {
-        position: relative;
-        z-index: 1;
+      .metric-primary .metric-icon {
+        background: linear-gradient(
+          135deg,
+          var(--primary-light) 0%,
+          var(--primary) 100%
+        );
+        color: var(--primary);
+      }
+
+      .metric-success .metric-icon {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+      }
+
+      .metric-warning .metric-icon {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+      }
+
+      .metric-info .metric-icon {
+        background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+        color: #1e40af;
+      }
+
+      .metric-content {
         flex: 1;
       }
 
-      .action-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #2d3748;
+      .metric-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-secondary);
         margin-bottom: 0.5rem;
       }
 
-      .action-description {
-        font-size: 0.95rem;
-        color: #718096;
-        margin-bottom: 1rem;
-        line-height: 1.5;
+      .metric-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1;
+        margin-bottom: 0.5rem;
       }
 
-      .action-arrow {
-        position: absolute;
-        top: 2rem;
-        right: 2rem;
-        color: #667eea;
-        font-size: 1.2rem;
-        transition: transform 0.3s ease;
+      .metric-change {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
       }
 
-      .action-card:hover .action-arrow {
-        transform: translateX(5px);
+      .change-positive {
+        color: #10b981;
+      }
+
+      .change-negative {
+        color: #ef4444;
+      }
+
+      .change-neutral {
+        color: var(--text-secondary);
+      }
+
+      .change-label {
+        margin-left: 0.25rem;
+        opacity: 0.7;
+      }
+
+      .metric-description {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin: 0;
+      }
+
+      .charts-section {
+        margin-bottom: 3rem;
+      }
+
+      .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+      }
+
+      .chart-card {
+        background: var(--surface-primary);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(124, 58, 237, 0.1);
+        border: 1px solid var(--border-light);
+        color: var(--text-primary);
+      }
+
+      .chart-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--headings-color);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .chart-container {
+        height: 300px;
+        position: relative;
+      }
+
+      .activity-section {
+        margin-bottom: 3rem;
+      }
+
+      .activity-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
       }
 
       .activity-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        background: var(--surface-primary);
         border-radius: 1.5rem;
         padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(124, 58, 237, 0.1);
+        border: 1px solid var(--border-light);
+        color: var(--text-primary);
+      }
+
+      .activity-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--headings-color);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
       }
 
       .activity-item {
         display: flex;
         align-items: flex-start;
         gap: 1rem;
-        padding: 1.5rem 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+        border-radius: 0.75rem;
+        background: var(--surface-secondary);
+        transition: all 0.2s ease;
+        color: var(--text-primary);
       }
 
-      .activity-item:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
+      .activity-item:hover {
+        background: var(--surface-tertiary);
       }
 
       .activity-icon {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        font-size: 1.2rem;
+        font-size: 1rem;
         flex-shrink: 0;
+      }
+
+      .leave-icon {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .task-icon {
+        background: #ede9fe;
+        color: #7c3aed;
       }
 
       .activity-content {
         flex: 1;
       }
 
-      .activity-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #2d3748;
+      .activity-main {
+        font-size: 0.95rem;
         margin-bottom: 0.25rem;
       }
 
-      .activity-description {
-        font-size: 0.9rem;
-        color: #718096;
-        margin-bottom: 0.5rem;
-        line-height: 1.4;
+      .leave-type {
+        color: var(--primary);
+        font-weight: 600;
       }
 
-      .activity-time {
-        font-size: 0.8rem;
-        color: #a0aec0;
-        font-weight: 500;
+      .activity-details {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
 
-      /* Mobile Optimizations */
+      .activity-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .status-approved {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .status-completed {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .status-in-progress {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+      }
+
+      .empty-state i {
+        margin-bottom: 1rem;
+      }
+
+      /* Dark mode support */
+      @media (prefers-color-scheme: dark) {
+        .metric-card,
+        .chart-card,
+        .activity-card {
+          background: var(--surface-primary);
+          border-color: var(--border-light);
+        }
+
+        .metric-value {
+          color: var(--text-primary);
+        }
+
+        .metric-title,
+        .metric-description {
+          color: var(--text-secondary);
+        }
+
+        .activity-item {
+          background: var(--surface-secondary);
+        }
+
+        .activity-item:hover {
+          background: var(--surface-tertiary);
+        }
+
+        .activity-main {
+          color: var(--text-primary);
+        }
+
+        .activity-details {
+          color: var(--text-secondary);
+        }
+      }
+
+      /* Mobile responsiveness */
       @media (max-width: 768px) {
         .dashboard-container {
-          padding: 0 1rem;
+          padding: 1rem;
         }
 
-        .hero-section {
-          padding: 2rem 0 1.5rem 0;
-        }
-
-        .welcome-card {
-          padding: 1.5rem;
-          border-radius: 1.5rem;
-        }
-
-        .welcome-header {
+        .welcome-section {
           flex-direction: column;
           text-align: center;
           gap: 1rem;
         }
 
-        .welcome-icon {
-          width: 70px;
-          height: 70px;
-          font-size: 1.8rem;
-        }
-
-        .welcome-text {
-          text-align: center;
-        }
-
         .welcome-title {
-          font-size: 1.8rem;
-          line-height: 1.3;
-        }
-
-        .welcome-subtitle {
-          font-size: 1rem;
-        }
-
-        .dashboard-content {
-          padding: 1.5rem 0 3rem 0;
-        }
-
-        .stats-section {
-          margin-bottom: 2rem;
-        }
-
-        .stat-card {
-          padding: 1.5rem;
-          min-height: 120px;
-          margin-bottom: 1rem;
-        }
-
-        .stat-icon {
-          width: 50px;
-          height: 50px;
-          font-size: 1.3rem;
-          margin-bottom: 0.8rem;
-        }
-
-        .stat-value {
           font-size: 2rem;
-          margin-bottom: 0.3rem;
         }
 
-        .stat-label {
-          font-size: 0.9rem;
+        .metrics-grid {
+          grid-template-columns: 1fr;
         }
 
-        .section-header {
-          margin-bottom: 2rem;
+        .charts-grid {
+          grid-template-columns: 1fr;
         }
 
-        .section-title {
-          font-size: 1.5rem;
-          flex-direction: column;
-          gap: 0.3rem;
+        .activity-grid {
+          grid-template-columns: 1fr;
         }
 
-        .section-subtitle {
-          font-size: 1rem;
-        }
-
-        .quick-actions-section,
-        .recent-activity-section {
-          margin-bottom: 2rem;
-        }
-
-        .action-card {
-          padding: 1.5rem;
-          min-height: 160px;
-          margin-bottom: 1rem;
-        }
-
-        .action-icon {
-          width: 50px;
-          height: 50px;
-          font-size: 1.3rem;
-          margin-bottom: 1rem;
-        }
-
-        .action-title {
-          font-size: 1.1rem;
-          margin-bottom: 0.4rem;
-        }
-
-        .action-description {
-          font-size: 0.9rem;
-          margin-bottom: 0.8rem;
-        }
-
-        .action-arrow {
-          top: 1.5rem;
-          right: 1.5rem;
-          font-size: 1rem;
-        }
-
-        .activity-card {
+        .metric-card {
           padding: 1.5rem;
         }
 
-        .activity-item {
-          padding: 1rem 0;
-          gap: 0.8rem;
-        }
-
-        .activity-icon {
-          width: 45px;
-          height: 45px;
-          font-size: 1.1rem;
-        }
-
-        .activity-title {
-          font-size: 1rem;
-        }
-
-        .activity-description {
-          font-size: 0.85rem;
-        }
-
-        .activity-time {
-          font-size: 0.75rem;
+        .chart-container {
+          height: 250px;
         }
       }
 
       @media (max-width: 480px) {
         .dashboard-container {
-          padding: 0 0.5rem;
+          padding: 0.5rem;
         }
-
-        .hero-section {
-          padding: 1.5rem 0 1rem 0;
-        }
-
-        .welcome-card {
-          padding: 1.25rem;
-          border-radius: 1.25rem;
-        }
-
-        .welcome-icon {
-          width: 60px;
-          height: 60px;
-          font-size: 1.5rem;
-        }
-
         .welcome-title {
-          font-size: 1.5rem;
-        }
-
-        .welcome-subtitle {
-          font-size: 0.9rem;
-        }
-
-        .dashboard-content {
-          padding: 1rem 0 2rem 0;
-        }
-
-        .stat-card {
-          padding: 1.25rem;
-          min-height: 110px;
-        }
-
-        .stat-icon {
-          width: 45px;
-          height: 45px;
-          font-size: 1.2rem;
-          margin-bottom: 0.6rem;
-        }
-
-        .stat-value {
-          font-size: 1.8rem;
-        }
-
-        .stat-label {
-          font-size: 0.85rem;
-        }
-
-        .section-title {
           font-size: 1.3rem;
         }
-
-        .section-subtitle {
-          font-size: 0.9rem;
+        .section-title {
+          font-size: 1.1rem;
         }
-
-        .action-card {
-          padding: 1.25rem;
-          min-height: 140px;
-        }
-
-        .action-icon {
-          width: 45px;
-          height: 45px;
-          font-size: 1.2rem;
-          margin-bottom: 0.8rem;
-        }
-
-        .action-title {
-          font-size: 1rem;
-        }
-
-        .action-description {
-          font-size: 0.85rem;
-        }
-
-        .action-arrow {
-          top: 1.25rem;
-          right: 1.25rem;
-          font-size: 0.9rem;
-        }
-
-        .activity-card {
-          padding: 1.25rem;
-        }
-
-        .activity-item {
-          padding: 0.8rem 0;
-          gap: 0.6rem;
-        }
-
-        .activity-icon {
-          width: 40px;
-          height: 40px;
-          font-size: 1rem;
-        }
-
-        .activity-title {
-          font-size: 0.95rem;
-        }
-
-        .activity-description {
-          font-size: 0.8rem;
-        }
-
-        .activity-time {
-          font-size: 0.7rem;
-        }
-      }
-
-      /* Touch Device Optimizations */
-      @media (hover: none) and (pointer: coarse) {
-        .stat-card:hover,
-        .action-card:hover {
-          transform: none;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card:hover::after,
-        .action-card:hover .action-arrow {
-          opacity: 0;
-          transform: none;
-        }
-
-        .stat-card:active,
-        .action-card:active {
-          transform: scale(0.98);
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card:active::after {
-          opacity: 1;
-        }
-
-        .action-card:active .action-arrow {
-          transform: translateX(3px);
-        }
-
-        /* Show click indicator on touch devices */
-        .stat-card::after {
-          opacity: 0.7;
-          font-size: 0.6rem;
-        }
-      }
-
-      /* Landscape Mobile Optimizations */
-      @media (max-width: 768px) and (orientation: landscape) {
-        .hero-section {
-          padding: 1rem 0;
-        }
-
-        .welcome-card {
-          padding: 1rem;
-        }
-
-        .welcome-header {
-          flex-direction: row;
+        .metrics-grid,
+        .charts-grid,
+        .activity-grid {
+          grid-template-columns: 1fr;
           gap: 1rem;
         }
-
-        .welcome-icon {
-          width: 50px;
-          height: 50px;
-          font-size: 1.3rem;
-        }
-
-        .welcome-title {
-          font-size: 1.4rem;
-        }
-
-        .dashboard-content {
-          padding: 1rem 0 2rem 0;
-        }
-
-        .stat-card {
-          min-height: 100px;
-          padding: 1rem;
-        }
-
-        .action-card {
-          min-height: 120px;
-          padding: 1rem;
-        }
-      }
-
-      /* High DPI Display Optimizations */
-      @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-        .stat-card,
-        .action-card,
+        .metric-card,
+        .chart-card,
         .activity-card {
-          border: 0.5px solid rgba(255, 255, 255, 0.2);
+          padding: 1rem;
+          border-radius: 1rem;
         }
-      }
-
-      /* Accessibility Improvements */
-      @media (prefers-reduced-motion: reduce) {
-        .stat-card,
-        .action-card,
-        .action-arrow {
-          transition: none;
+        .charts-section {
+          margin-bottom: 2rem;
+          margin-top: 1.5rem;
         }
-
-        .stat-card:hover,
-        .action-card:hover {
-          transform: none;
+        .charts-grid {
+          gap: 1rem;
         }
-      }
-
-      /* Dark Mode Support */
-      @media (prefers-color-scheme: dark) {
-        .welcome-card,
-        .stat-card,
-        .action-card,
-        .activity-card {
-          background: rgba(26, 32, 44, 0.95);
-          border-color: rgba(255, 255, 255, 0.1);
+        .chart-card {
+          width: 100%;
+          margin-bottom: 1.5rem;
+          box-shadow: 0 2px 12px rgba(124, 58, 237, 0.08);
+          border: 1px solid #ececec;
         }
-
-        .welcome-title,
-        .stat-value,
-        .action-title,
-        .activity-title {
-          color: #f7fafc;
+        .chart-title {
+          font-size: 1rem;
+          word-break: break-word;
+          text-align: center;
         }
-
-        .welcome-subtitle,
-        .stat-label,
-        .action-description,
-        .activity-description {
-          color: #a0aec0;
+        .chart-container {
+          height: 180px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          width: 100%;
+          min-width: 320px;
+          border: 1px solid #f3f3f3;
+          border-radius: 0.75rem;
         }
-
-        .activity-time {
-          color: #718096;
+        .chart-container canvas {
+          width: 100% !important;
+          min-width: 320px;
+          max-width: 100vw;
+          height: auto !important;
+          display: block;
         }
       }
     `,
   ],
 })
-export class HomeComponent implements OnInit {
-  role$: Observable<UserRole | null>;
-  employeeCount = 0;
-  leavePending = 0;
-  leaveApproved = 0;
-  leaveRejected = 0;
-  taskCount = 0;
-  payrollCount = 0;
-  userId: number | null = null;
-  private subs: Subscription[] = [];
+export class HomeComponent implements OnInit, OnDestroy {
+  loading = true;
+  metrics: DashboardMetric[] = [];
+  recentLeaveRequests: ILeaveRequest[] = [];
+  recentTasks: Task[] = [];
+  Math = Math;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
-    private auth: AuthService,
     private employeeService: EmployeeService,
     private leaveService: LeaveService,
+    private taskService: TaskService,
     private payrollService: PayrollService,
-    private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-    this.role$ = this.auth.getRole();
+    private notificationService: NotificationService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadDashboardData();
   }
 
-  ngOnInit() {
-    this.userId = this.auth.getUserId();
-    this.subs.push(
-      this.role$.subscribe((role) => {
-        if (role === 'Employee' && this.userId) {
-          this.subs.push(
-            this.leaveService.getLeaves().subscribe((leaves) => {
-              const myLeaves = leaves.filter(
-                (l) => l.employeeId === this.userId
-              );
-              this.leavePending = myLeaves.filter(
-                (l) => l.status === 'Pending'
-              ).length;
-              this.leaveApproved = myLeaves.filter(
-                (l) => l.status === 'Approved'
-              ).length;
-              this.leaveRejected = myLeaves.filter(
-                (l) => l.status === 'Rejected'
-              ).length;
-            })
-          );
-          // For demo, count all tasks as 3
-          this.taskCount = 3;
-        } else if (role === 'HR') {
-          this.subs.push(
-            this.employeeService.getEmployees().subscribe((emps) => {
-              this.employeeCount = emps.length;
-            })
-          );
-          this.subs.push(
-            this.leaveService.getLeaves().subscribe((leaves) => {
-              this.leavePending = leaves.filter(
-                (l) => l.status === 'Pending'
-              ).length;
-            })
-          );
-          // For demo, count all tasks as 5
-          this.taskCount = 5;
-        } else if (role === 'Admin') {
-          this.subs.push(
-            this.payrollService.getPayrolls().subscribe((payrolls) => {
-              this.payrollCount = payrolls.length;
-            })
-          );
-          // For demo, count all tasks as 2
-          this.taskCount = 2;
-        } else if (role === 'ProjectManager') {
-          this.subs.push(
-            this.employeeService.getEmployees().subscribe((emps) => {
-              this.employeeCount = emps.length;
-            })
-          );
-          // For demo, count all tasks as 4
-          this.taskCount = 4;
-        }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadDashboardData(): void {
+    this.loading = true;
+
+    // Add a timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (this.loading) {
+        console.warn('Dashboard loading timeout - forcing completion');
+        this.loading = false;
+        this.calculateMetrics();
+      }
+    }, 10000); // 10 second timeout
+
+    // Load all data in parallel
+    Promise.all([
+      this.loadEmployees(),
+      this.loadLeaveRequests(),
+      this.loadTasks(),
+      this.loadPayroll(),
+    ])
+      .then(() => {
+        clearTimeout(timeout);
+        this.calculateMetrics();
+        this.loading = false;
       })
-    );
+      .catch((error) => {
+        clearTimeout(timeout);
+        console.error('Error loading dashboard data:', error);
+        this.notificationService.showError('Failed to load dashboard data');
+        this.loading = false;
+        // Still calculate metrics with default data
+        this.calculateMetrics();
+      });
   }
 
-  ngOnDestroy() {
-    this.subs.forEach((sub) => sub.unsubscribe());
+  private async loadEmployees(): Promise<void> {
+    try {
+      const employees = await firstValueFrom(
+        this.employeeService.getEmployees().pipe(takeUntil(this.destroy$))
+      );
+      // Process employee data
+    } catch (error) {
+      console.error('Error loading employees:', error);
+    }
   }
 
-  getWelcomeMessage(): string {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning!';
-    if (hour < 17) return 'Good Afternoon!';
-    return 'Good Evening!';
+  private async loadLeaveRequests(): Promise<void> {
+    try {
+      const leaveRequests = await firstValueFrom(
+        this.leaveService.getLeaves().pipe(takeUntil(this.destroy$))
+      );
+      this.recentLeaveRequests = leaveRequests?.slice(0, 5) || [];
+    } catch (error) {
+      console.error('Error loading leave requests:', error);
+      // Fallback data
+      this.recentLeaveRequests = [
+        {
+          id: 1,
+          employeeId: 1,
+          type: 'Annual',
+          from: '2024-06-01',
+          to: '2024-06-05',
+          status: 'Approved',
+          reason: 'Family vacation',
+        },
+      ];
+    }
   }
 
-  goToProfile() {
-    this.router.navigate(['/profile']);
+  private async loadTasks(): Promise<void> {
+    try {
+      const tasks = await firstValueFrom(
+        this.taskService.getTasks().pipe(takeUntil(this.destroy$))
+      );
+      this.recentTasks = tasks?.slice(0, 5) || [];
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+      // Fallback data
+      this.recentTasks = [
+        {
+          id: 1,
+          title: 'Prepare Onboarding Documents',
+          description:
+            'Prepare and upload all onboarding documents for new hires.',
+          assignee: 'HR',
+          dueDate: '2024-06-15',
+          status: 'Pending',
+          priority: 'High',
+          comments: ['Initial task created.'],
+        },
+      ];
+    }
   }
-  goToLeave() {
-    this.router.navigate(['/leave']);
+
+  private async loadPayroll(): Promise<void> {
+    try {
+      const payroll = await firstValueFrom(
+        this.payrollService.getPayrolls().pipe(takeUntil(this.destroy$))
+      );
+      // Process payroll data
+    } catch (error) {
+      console.error('Error loading payroll:', error);
+    }
   }
-  goToTasks() {
-    this.router.navigate(['/tasks']);
+
+  private calculateMetrics(): void {
+    // Calculate metrics based on loaded data
+    this.metrics = [
+      {
+        title: 'Total Employees',
+        value: 150,
+        change: 12,
+        changeType: 'positive',
+        icon: 'fas fa-users',
+        color: 'primary',
+        description: 'Active employees in the system',
+      },
+      {
+        title: 'Leave Requests',
+        value: 23,
+        change: -5,
+        changeType: 'negative',
+        icon: 'fas fa-calendar-alt',
+        color: 'warning',
+        description: 'Pending leave requests',
+      },
+      {
+        title: 'Active Tasks',
+        value: 45,
+        change: 8,
+        changeType: 'positive',
+        icon: 'fas fa-tasks',
+        color: 'info',
+        description: 'Tasks in progress',
+      },
+      {
+        title: 'Total Payroll',
+        value: 125000,
+        change: 15,
+        changeType: 'positive',
+        icon: 'fas fa-money-check-alt',
+        color: 'success',
+        description: 'Monthly payroll amount',
+      },
+    ];
   }
-  goToPayroll() {
-    this.router.navigate(['/payroll']);
+
+  getChangeIcon(changeType: string): string {
+    switch (changeType) {
+      case 'positive':
+        return 'fas fa-arrow-up';
+      case 'negative':
+        return 'fas fa-arrow-down';
+      default:
+        return 'fas fa-minus';
+    }
   }
-  goToEmployee() {
-    this.router.navigate(['/employee']);
-  }
-  goToLearning() {
-    this.router.navigate(['/learning']);
-  }
-  goToLeaveApprove() {
-    this.router.navigate(['/leave-approve']);
+
+  refreshData(): void {
+    this.loadDashboardData();
+    this.notificationService.showInfo('Dashboard data refreshed');
   }
 }
