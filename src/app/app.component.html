@@ -54,6 +54,13 @@
   </div>
 </nav>
 
+<app-loading-spinner
+  *ngIf="globalLoading$ | async"
+  [overlay]="true"
+  size="xl"
+  message="Loading..."
+></app-loading-spinner>
+
 <div class="d-flex min-vh-100">
   <!-- Sidebar Navigation (only if logged in) -->
   <ng-container *ngIf="isLoggedIn$ | async">
