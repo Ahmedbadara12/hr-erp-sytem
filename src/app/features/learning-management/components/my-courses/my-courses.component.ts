@@ -244,24 +244,16 @@ import { AuthService } from '../../../../core/services/auth.service';
         padding: 2rem 0;
       }
       .card {
-        background: var(--surface-primary);
+        background: var(--surface-secondary);
         color: var(--text-primary);
         border-radius: var(--radius-xl);
         box-shadow: var(--shadow-lg);
         border: 1.5px solid var(--border-light);
-        transition: box-shadow 0.2s;
       }
-      .card .card-title {
+      .card-title {
         color: var(--headline-color);
-        font-weight: 700;
-        font-size: 1.15rem;
-      }
-      .card .card-text {
-        color: var(--text-secondary);
       }
       .badge {
-        background: var(--primary-light);
-        color: var(--primary-dark);
         border-radius: 1em;
         font-weight: 700;
         padding: 0.4em 1.1em;
@@ -269,12 +261,16 @@ import { AuthService } from '../../../../core/services/auth.service';
         box-shadow: 0 1px 4px 0 rgba(124, 58, 237, 0.08);
       }
       .badge.bg-success {
-        background: #bbf7d0 !important;
-        color: #065f46 !important;
+        background-color: var(--success) !important;
+        color: #fff !important;
       }
       .badge.bg-warning {
-        background: #fde68a !important;
-        color: #b45309 !important;
+        background-color: var(--warning) !important;
+        color: #212529 !important;
+      }
+      .badge.bg-primary {
+        background-color: var(--primary) !important;
+        color: #fff !important;
       }
       .progress {
         background: var(--surface-secondary);
@@ -283,40 +279,69 @@ import { AuthService } from '../../../../core/services/auth.service';
         box-shadow: 0 1px 4px 0 rgba(124, 58, 237, 0.04);
       }
       .progress-bar {
-        background: linear-gradient(90deg, var(--primary-light), var(--primary));
+        background: linear-gradient(
+          90deg,
+          var(--primary),
+          var(--primary-light)
+        );
+        color: #fff;
         border-radius: var(--radius-lg);
       }
-      .btn, .btn-primary, .btn-outline-success, .btn-outline-primary {
+      .btn,
+      .btn-primary,
+      .btn-outline-success,
+      .btn-outline-primary {
         display: inline-flex;
         justify-content: center;
         align-items: center;
         min-width: 160px;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        color: #fff;
         border-radius: var(--radius-lg);
         font-weight: 700;
         font-size: 1.08em;
         padding: 0.7em 1.5em;
-        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.10);
+        box-shadow: var(--shadow-sm);
+        transition: background var(--transition-normal),
+          color var(--transition-normal);
         margin: 0 0.5rem 0.5rem 0;
         border: none;
-        transition: background 0.2s, color 0.2s;
       }
-      .btn-outline-success, .btn-outline-primary {
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        color: #fff;
+      }
+      .btn-outline-success {
+        color: var(--success);
+        border: 2px solid var(--success);
         background: transparent;
+      }
+      .btn-outline-success:hover {
+        background: var(--success);
+        color: #fff;
+      }
+      .btn-outline-primary {
         color: var(--primary);
-        border: 2px solid var(--primary-light);
+        border: 2px solid var(--primary);
+        background: transparent;
       }
-      .btn-outline-success:hover, .btn-outline-primary:hover {
-        background: var(--primary-light);
-        color: #fff;
-        border-color: var(--primary);
-      }
-      .btn:hover, .btn-primary:hover {
-        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      .btn-outline-primary:hover {
+        background: var(--primary);
         color: #fff;
       }
-      .btn-row, .btn-group {
+      .btn:hover,
+      .btn-primary:hover {
+        background: linear-gradient(
+          135deg,
+          var(--primary-dark) 0%,
+          var(--primary) 100%
+        );
+        color: #fff;
+      }
+      .btn-row,
+      .btn-group {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -327,14 +352,22 @@ import { AuthService } from '../../../../core/services/auth.service';
       .text-muted {
         color: var(--text-secondary) !important;
       }
-      h2, h4 {
+      h2,
+      h4 {
         color: var(--headline-color);
         font-weight: 800;
       }
-      .fa-book-open, .fa-trophy, .fa-certificate {
+      .fa-book-open,
+      .fa-trophy,
+      .fa-certificate {
         color: var(--primary-light);
       }
-    `
+      @media (max-width: 768px) {
+        .card {
+          margin-bottom: 1rem;
+        }
+      }
+    `,
   ],
 })
 export class MyCoursesComponent implements OnInit {

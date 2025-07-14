@@ -230,20 +230,104 @@ import { NotificationService } from '../../../../shared/services/notification.se
   styles: [
     `
       .progress-bar {
-        background-color: #007bff;
+        background: linear-gradient(
+          90deg,
+          var(--primary),
+          var(--primary-light)
+        );
+        color: #fff;
       }
 
-      .badge.bg-beginner {
-        background-color: #28a745 !important;
+      .badge.bg-primary {
+        background-color: var(--primary) !important;
+        color: #fff !important;
       }
 
-      .badge.bg-intermediate {
-        background-color: #ffc107 !important;
+      .badge.bg-success {
+        background-color: var(--success) !important;
+        color: #fff !important;
+      }
+
+      .badge.bg-warning {
+        background-color: var(--warning) !important;
         color: #212529 !important;
       }
 
-      .badge.bg-advanced {
-        background-color: #dc3545 !important;
+      .badge.bg-danger {
+        background-color: var(--danger) !important;
+        color: #fff !important;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        color: #fff;
+      }
+
+      .btn-success {
+        background: var(--success);
+        color: #fff;
+      }
+
+      .btn-success:hover {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .btn-outline-secondary {
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        background: transparent;
+      }
+
+      .btn-outline-secondary:hover {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .btn {
+        border-radius: var(--radius-lg);
+        font-weight: 700;
+        box-shadow: var(--shadow-sm);
+        transition: background var(--transition-normal),
+          color var(--transition-normal);
+      }
+
+      .list-group-item {
+        background: var(--surface-primary);
+        color: var(--text-primary);
+        border: none;
+        border-bottom: 1px solid var(--border-light);
+      }
+
+      .list-group-item:last-child {
+        border-bottom: none;
+      }
+
+      .list-group-item.active {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+      }
+
+      .card {
+        background: var(--surface-secondary);
+        color: var(--text-primary);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        border: 1.5px solid var(--border-light);
+      }
+      .card-title {
+        color: var(--headline-color);
+      }
+
+      @media (max-width: 768px) {
+        .card {
+          margin-bottom: 1rem;
+        }
       }
     `,
   ],
@@ -305,11 +389,11 @@ export class CourseDetailComponent implements OnInit {
   getDifficultyClass(difficulty: string): string {
     switch (difficulty) {
       case 'Beginner':
-        return 'bg-beginner';
+        return 'bg-success';
       case 'Intermediate':
-        return 'bg-intermediate';
+        return 'bg-warning';
       case 'Advanced':
-        return 'bg-advanced';
+        return 'bg-danger';
       default:
         return 'bg-secondary';
     }

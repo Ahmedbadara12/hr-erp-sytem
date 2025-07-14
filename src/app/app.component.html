@@ -61,7 +61,7 @@
   message="Loading..."
 ></app-loading-spinner>
 
-<div class="d-flex min-vh-100">
+<div class="d-flex min-vh-100 vh-100">
   <!-- Sidebar Navigation (only if logged in) -->
   <ng-container *ngIf="isLoggedIn$ | async">
     <!-- Modern Mobile Sidebar -->
@@ -103,6 +103,27 @@
         </div>
 
         <div class="mobile-nav-sections">
+          <!-- Home Navigation (always visible) -->
+          <div class="mobile-nav-section">
+            <div class="mobile-nav-items">
+              <a
+                class="mobile-nav-item"
+                routerLink="/"
+                routerLinkActive="active"
+              >
+                <div class="mobile-nav-icon">
+                  <i class="fas fa-home"></i>
+                </div>
+                <div class="mobile-nav-text">
+                  <span class="mobile-nav-label">Home</span>
+                  <span class="mobile-nav-description">Dashboard</span>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </a>
+            </div>
+          </div>
           <!-- Admin Navigation -->
           <ng-container *ngIf="(role$ | async) === 'Admin'">
             <div class="mobile-nav-section">
@@ -387,6 +408,27 @@
           </div>
         </div>
         <div class="mobile-nav-sections">
+          <!-- Home Navigation (always visible) -->
+          <div class="mobile-nav-section">
+            <div class="mobile-nav-items">
+              <a
+                class="mobile-nav-item"
+                routerLink="/"
+                routerLinkActive="active"
+              >
+                <div class="mobile-nav-icon">
+                  <i class="fas fa-home"></i>
+                </div>
+                <div class="mobile-nav-text">
+                  <span class="mobile-nav-label">Home</span>
+                  <span class="mobile-nav-description">Dashboard</span>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </a>
+            </div>
+          </div>
           <!-- Admin Navigation -->
           <ng-container *ngIf="(role$ | async) === 'Admin'">
             <div class="mobile-nav-section">
@@ -648,5 +690,3 @@
     <app-notification></app-notification>
   </div>
 </div>
-
-

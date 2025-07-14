@@ -179,7 +179,7 @@ import { PLATFORM_ID } from '@angular/core';
         width: 100%;
         max-width: 700px;
         padding: 2rem 1.5rem;
-        background: #fff;
+        background: var(--surface-primary);
         border-radius: 1.5rem;
         box-shadow: 0 4px 24px rgba(124, 58, 237, 0.1);
         margin-bottom: 2.5rem;

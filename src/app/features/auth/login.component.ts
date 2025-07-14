@@ -258,7 +258,7 @@ import { InputComponent } from '../../shared/components/input/input.component';
         border-radius: 0.75rem;
         font-size: 1rem;
         transition: all 0.3s ease;
-        background: #fff;
+        background: var(--surface-primary);
         color: #2d3748;
       }
 

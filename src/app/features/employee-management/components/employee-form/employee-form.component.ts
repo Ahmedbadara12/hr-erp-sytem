@@ -486,7 +486,7 @@ import { InputComponent } from '../../../../shared/components/input/input.compon
         border-radius: 0.75rem;
         font-size: 1rem;
         transition: all 0.3s ease;
-        background: #fff;
+        background: var(--surface-primary);
         color: #2d3748;
       }
 
@@ -753,7 +753,7 @@ export class EmployeeFormComponent implements OnInit {
   }
 
   markFormGroupTouched() {
-    Object.values(this.employeeForm.controls).forEach(control => {
+    Object.values(this.employeeForm.controls).forEach((control) => {
       control.markAsTouched();
     });
   }

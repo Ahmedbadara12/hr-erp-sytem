@@ -65,10 +65,10 @@ import { trigger, transition, style, animate } from '@angular/animations';
     }
 
     .notification-item {
-      background: #fff;
+      background: var(--surface-primary);
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-      border: 1px solid #e5e7eb;
+      border: 1px solid var(--border-light);
       overflow: hidden;
       position: relative;
       backdrop-filter: blur(10px);
@@ -76,19 +76,19 @@ import { trigger, transition, style, animate } from '@angular/animations';
     }
 
     .notification-success {
-      border-left-color: #10b981;
+      border-left-color: var(--success);
     }
 
     .notification-error {
-      border-left-color: #ef4444;
+      border-left-color: var(--danger);
     }
 
     .notification-info {
-      border-left-color: #3b82f6;
+      border-left-color: var(--info);
     }
 
     .notification-warning {
-      border-left-color: #f59e0b;
+      border-left-color: var(--warning);
     }
 
     .notification-content {
@@ -110,8 +110,8 @@ import { trigger, transition, style, animate } from '@angular/animations';
     }
 
     .notification-success .notification-icon {
-      background: #d1fae5;
-      color: #065f46;
+      background: var(--success-bg, #d1fae5);
+      color: var(--success-text, #065f46);
     }
 
     .notification-error .notification-icon,
@@ -137,7 +137,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 
     .notification-message {
       font-weight: 600;
-      color: #1f2937;
+      color: var(--text-primary);
       line-height: 1.4;
       margin-bottom: 0.25rem;
     }
@@ -209,21 +209,53 @@ import { trigger, transition, style, animate } from '@angular/animations';
     /* Dark mode support */
     @media (prefers-color-scheme: dark) {
       .notification-item {
-        background: #1f2937;
-        border-color: #374151;
+        background: var(--surface-primary);
+        border-color: var(--border-light);
       }
 
       .notification-message {
-        color: #f9fafb;
+        color: var(--text-primary);
       }
 
       .notification-details {
-        color: #d1d5db;
+        color: var(--text-secondary);
       }
 
       .notification-close:hover {
-        background: #374151;
-        color: #d1d5db;
+        background: var(--surface-secondary);
+        color: var(--text-secondary);
+      }
+
+      .notification-success .notification-icon {
+        background: var(--success-bg, #166534);
+        color: var(--success-text, #bbf7d0);
+      }
+      .notification-error .notification-icon,
+      .notification-danger .notification-icon {
+        background: var(--danger-bg, #991b1b);
+        color: var(--danger-text, #fecaca);
+      }
+      .notification-info .notification-icon {
+        background: var(--info-bg, #312e81);
+        color: var(--info-text, #c7d2fe);
+      }
+      .notification-warning .notification-icon {
+        background: var(--warning-bg, #b45309);
+        color: var(--warning-text, #fde68a);
+      }
+
+      .notification-success .notification-progress::after {
+        background: var(--success, #10b981);
+      }
+      .notification-error .notification-progress::after,
+      .notification-danger .notification-progress::after {
+        background: var(--danger, #ef4444);
+      }
+      .notification-info .notification-progress::after {
+        background: var(--info, #a78bfa);
+      }
+      .notification-warning .notification-progress::after {
+        background: var(--warning, #f59e0b);
       }
     }
 

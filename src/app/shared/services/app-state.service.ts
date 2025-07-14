@@ -155,24 +155,11 @@ export class AppStateService {
   }
 
   private initializeState(): void {
-    // Initialize theme from localStorage
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-      const savedTheme = localStorage.getItem('hr-erp-theme');
-      if (savedTheme) {
-        try {
-          const theme = JSON.parse(savedTheme);
-          this._themeState.set({ ...this._themeState(), ...theme });
-        } catch (error) {
-          console.warn('Failed to parse saved theme:', error);
-        }
-      } else {
-        // Default to light mode on first visit
-        this._themeState.update((state) => ({
-          ...state,
-          mode: 'light',
-        }));
-      }
-    }
+    // Always default to light mode on first visit, ignoring localStorage
+    this._themeState.update((state) => ({
+      ...state,
+      mode: 'light',
+    }));
 
     // Initialize user state from auth service
     this.authService.getRole().subscribe((role) => {
@@ -469,9 +456,12 @@ export class AppStateService {
     };
     root.style.setProperty('--base-font-size', fontSizeMap[theme.fontSize]);
 
-    // Apply dark mode class
+    // Apply dark mode class to both <html> and <body>
     const isDark = theme.mode === 'dark';
     root.classList.toggle('dark', isDark);
+    if (document.body) {
+      document.body.classList.toggle('dark', isDark);
+    }
   }
 
   // Public getters for reactive components

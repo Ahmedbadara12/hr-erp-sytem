@@ -18,7 +18,9 @@ $info: #7c3aed;
 
 // --- CSS VARIABLES FOR THEMING ---
 // --- GLOBAL COLOR VARIABLES FOR LIGHT MODE ---
-:root {
+:root,
+html,
+body {
   --primary: #7c3aed;
   --primary-light: #a78bfa;
   --primary-dark: #5b21b6;
@@ -59,8 +61,13 @@ $info: #7c3aed;
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
   --transition-slow: 350ms ease;
+}
+// Sidebar colors (locked to light mode)
+:root,
+html,
+body {
   --sidebar-bg-gradient: linear-gradient(135deg, #ede9fe 0%, #a78bfa 100%);
-  --sidebar-text: #232136;
+  --sidebar-text: #f9fafb;
   --sidebar-icon-bg: #ede9fe;
   --sidebar-icon-color: #7c3aed;
 }
@@ -93,13 +100,11 @@ $info: #7c3aed;
       0 4px 6px -2px rgba(0, 0, 0, 0.12);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.18),
       0 10px 10px -5px rgba(0, 0, 0, 0.12);
-    --sidebar-bg-gradient: linear-gradient(135deg, #312e81 0%, #7c3aed 100%);
-    --sidebar-text: #f9fafb;
-    --sidebar-icon-bg: #312e81;
-    --sidebar-icon-color: #a78bfa;
   }
 }
-.dark {
+.dark,
+html.dark,
+body.dark {
   --primary: #a78bfa;
   --primary-light: #c4b5fd;
   --primary-dark: #5b21b6;
@@ -126,10 +131,6 @@ $info: #7c3aed;
     0 4px 6px -2px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.18),
     0 10px 10px -5px rgba(0, 0, 0, 0.12);
-  --sidebar-bg-gradient: linear-gradient(135deg, #312e81 0%, #7c3aed 100%);
-  --sidebar-text: #f9fafb;
-  --sidebar-icon-bg: #312e81;
-  --sidebar-icon-color: #a78bfa;
 }
 
 // --- FONT FAMILY & BASE STYLES ---
@@ -928,7 +929,7 @@ textarea:disabled,
   }
 
   body {
-    background: white !important;
+    background: var(--surface-primary) !important;
     color: black !important;
   }
 }
@@ -1264,7 +1265,7 @@ img {
 }
 .leave-apply-card .form-control {
   color: var(--text-primary) !important;
-  background: #fff;
+  background: var(--surface-primary);
 }
 .leave-apply-card .btn-odoo,
 .leave-apply-card .btn-primary {
@@ -2097,7 +2098,12 @@ h6 {
 }
 
 // --- GLOBAL BUTTON CONSISTENCY ---
-.btn, .btn-primary, .btn-odoo, .btn-outline-secondary, .btn-outline-primary, .btn-outline-success {
+.btn,
+.btn-primary,
+.btn-odoo,
+.btn-outline-secondary,
+.btn-outline-primary,
+.btn-outline-success {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2109,14 +2115,21 @@ h6 {
   font-weight: 700;
   font-size: 1.08em;
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.10);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
   transition: background 0.2s, color 0.2s;
 }
-.btn-group, .btn-row {
+.btn-group,
+.btn-row {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 1em;
   width: 100%;
   margin: 1em 0;
+}
+.main-content,
+.app-container,
+.d-flex.min-vh-100 {
+  min-height: 100vh;
+  height: 100vh;
 }
