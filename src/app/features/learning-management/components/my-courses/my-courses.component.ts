@@ -238,23 +238,103 @@ import { AuthService } from '../../../../core/services/auth.service';
   `,
   styles: [
     `
+      .container-fluid {
+        background: var(--background);
+        color: var(--text-primary);
+        padding: 2rem 0;
+      }
+      .card {
+        background: var(--surface-primary);
+        color: var(--text-primary);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        border: 1.5px solid var(--border-light);
+        transition: box-shadow 0.2s;
+      }
+      .card .card-title {
+        color: var(--headline-color);
+        font-weight: 700;
+        font-size: 1.15rem;
+      }
+      .card .card-text {
+        color: var(--text-secondary);
+      }
+      .badge {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        border-radius: 1em;
+        font-weight: 700;
+        padding: 0.4em 1.1em;
+        font-size: 1em;
+        box-shadow: 0 1px 4px 0 rgba(124, 58, 237, 0.08);
+      }
+      .badge.bg-success {
+        background: #bbf7d0 !important;
+        color: #065f46 !important;
+      }
+      .badge.bg-warning {
+        background: #fde68a !important;
+        color: #b45309 !important;
+      }
+      .progress {
+        background: var(--surface-secondary);
+        border-radius: var(--radius-lg);
+        height: 8px;
+        box-shadow: 0 1px 4px 0 rgba(124, 58, 237, 0.04);
+      }
       .progress-bar {
-        background-color: #007bff;
+        background: linear-gradient(90deg, var(--primary-light), var(--primary));
+        border-radius: var(--radius-lg);
       }
-
-      .badge.bg-progress-low {
-        background-color: #dc3545 !important;
+      .btn, .btn-primary, .btn-outline-success, .btn-outline-primary {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 160px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: #fff;
+        border-radius: var(--radius-lg);
+        font-weight: 700;
+        font-size: 1.08em;
+        padding: 0.7em 1.5em;
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.10);
+        margin: 0 0.5rem 0.5rem 0;
+        border: none;
+        transition: background 0.2s, color 0.2s;
       }
-
-      .badge.bg-progress-medium {
-        background-color: #ffc107 !important;
-        color: #212529 !important;
+      .btn-outline-success, .btn-outline-primary {
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary-light);
       }
-
-      .badge.bg-progress-high {
-        background-color: #28a745 !important;
+      .btn-outline-success:hover, .btn-outline-primary:hover {
+        background: var(--primary-light);
+        color: #fff;
+        border-color: var(--primary);
       }
-    `,
+      .btn:hover, .btn-primary:hover {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        color: #fff;
+      }
+      .btn-row, .btn-group {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+      }
+      .text-muted {
+        color: var(--text-secondary) !important;
+      }
+      h2, h4 {
+        color: var(--headline-color);
+        font-weight: 800;
+      }
+      .fa-book-open, .fa-trophy, .fa-certificate {
+        color: var(--primary-light);
+      }
+    `
   ],
 })
 export class MyCoursesComponent implements OnInit {

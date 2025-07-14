@@ -12,29 +12,30 @@
   flex-shrink: 0;
   box-sizing: border-box;
   z-index: 101;
-  background: #343a40;
-  color: #fff;
+  background: var(--sidebar-bg-gradient);
+  color: var(--sidebar-text);
   padding-top: 1.5rem;
+  border-right: 1.5px solid var(--primary-light);
 }
 
 .sidebar .nav-link {
-  color: #adb5bd;
+  color: var(--sidebar-text);
   border-radius: 4px;
   margin: 0.25rem 0;
   padding: 0.5rem 1rem;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .sidebar .nav-link.active,
 .sidebar .nav-link:focus,
 .sidebar .nav-link:hover {
   color: #fff;
-  background: #495057;
+  background: var(--primary-light);
 }
 
 .sidebar .role-badge {
-  background: #495057;
-  color: #fff;
+  background: var(--primary-light);
+  color: var(--sidebar-text);
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -44,23 +45,23 @@
 }
 
 .sidebar .btn-outline-light {
-  border-color: #adb5bd;
-  color: #fff;
+  border-color: var(--primary-light);
+  color: var(--sidebar-text);
 }
 
 .sidebar .btn-outline-light:hover {
-  background: #adb5bd;
-  color: #343a40;
+  background: var(--primary-light);
+  color: var(--sidebar-bg-gradient);
 }
 
 .sidebar .btn-outline-secondary {
-  border-color: #adb5bd;
-  color: #adb5bd;
+  border-color: var(--primary-light);
+  color: var(--primary-light);
 }
 
 .sidebar .btn-outline-secondary:hover {
-  background: #adb5bd;
-  color: #343a40;
+  background: var(--primary-light);
+  color: var(--sidebar-bg-gradient);
 }
 
 // Responsive layout tweaks

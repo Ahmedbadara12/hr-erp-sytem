@@ -283,7 +283,7 @@ import { InputComponent } from '../../../shared/components/input/input.component
       .task-form-container {
         padding: 2rem;
         min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--background);
       }
 
       .task-form-container.modal-form {
@@ -293,23 +293,26 @@ import { InputComponent } from '../../../shared/components/input/input.component
       }
 
       .task-form-card {
-        background: rgba(255, 255, 255, 0.95);
+        background: var(--surface-secondary);
         backdrop-filter: blur(10px);
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        max-width: 800px;
+        border-radius: var(--radius-xl);
+        padding: 2.5rem 2.5rem 2rem 2.5rem;
+        box-shadow: 0 6px 32px 0 rgba(124, 58, 237, 0.1);
+        max-width: 480px;
+        width: 100%;
+        border: 1.5px solid var(--primary-light);
+        color: var(--text-primary);
         margin: 0 auto;
       }
 
       .task-form-card.modal-card {
-        background: white;
+        background: var(--surface-primary);
         backdrop-filter: none;
-        border-radius: 0;
-        padding: 1rem;
-        box-shadow: none;
-        max-width: none;
-        margin: 0;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-lg);
+        max-width: 480px;
+        margin: 0 auto;
       }
 
       .task-form-header {
@@ -318,14 +321,14 @@ import { InputComponent } from '../../../shared/components/input/input.component
       }
 
       .task-form-title {
-        color: #2d3748;
+        color: var(--headline-color);
         font-size: 2rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
       }
 
       .task-form-subtitle {
-        color: #718096;
+        color: var(--text-secondary);
         font-size: 1.1rem;
       }
 
@@ -338,35 +341,51 @@ import { InputComponent } from '../../../shared/components/input/input.component
 
       .btn {
         padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        font-weight: 600;
+        border-radius: var(--radius-lg);
+        font-weight: 700;
+        font-size: 1.08em;
         transition: all 0.3s ease;
         border: none;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
       }
 
-      .btn-odoo {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+      .btn-odoo,
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--primary-dark) 100%
+        );
+        color: #fff;
+        border: none;
       }
 
-      .btn-odoo:hover:not(:disabled) {
+      .btn-odoo:hover:not(:disabled),
+      .btn-primary:hover:not(:disabled) {
+        background: linear-gradient(
+          135deg,
+          var(--primary-dark) 0%,
+          var(--primary) 100%
+        );
+        color: #fff;
+        box-shadow: 0 10px 20px rgba(124, 58, 237, 0.18);
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
       }
 
       .btn-outline-secondary {
         background: transparent;
-        color: #4a5568;
-        border: 2px solid #e2e8f0;
+        color: var(--primary);
+        border: 2px solid var(--primary-light);
       }
 
       .btn-outline-secondary:hover {
-        background: #f7fafc;
-        border-color: #cbd5e0;
+        background: var(--primary-light);
+        color: #fff;
+        border-color: var(--primary);
       }
 
       .btn:disabled {
@@ -387,10 +406,10 @@ import { InputComponent } from '../../../shared/components/input/input.component
         display: flex;
         align-items: center;
         font-weight: 700;
-        color: #000000;
+        color: var(--text-primary);
         margin-bottom: 0.5rem;
         font-size: 0.95rem;
-        text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 0 1px rgba(35, 33, 54, 0.08);
       }
 
       .required-indicator {
@@ -399,56 +418,40 @@ import { InputComponent } from '../../../shared/components/input/input.component
         font-weight: 700;
       }
 
-      .form-control {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 0.75rem;
+      .form-control,
+      textarea,
+      select {
+        background: var(--surface-primary);
+        color: var(--text-primary);
+        border: 2px solid var(--border-light);
+        border-radius: var(--radius-lg);
         font-size: 1rem;
-        transition: all 0.3s ease;
-        background: #fff;
-        color: #2d3748;
+        font-weight: 500;
+        box-shadow: 0 1px 4px 0 rgba(124, 58, 237, 0.04);
+        padding: 0.75rem 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
       }
-
-      .form-control:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      .form-control:focus,
+      textarea:focus,
+      select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
       }
-
-      .form-control.is-valid {
-        border-color: #48bb78;
-        background-color: #f0fff4;
-      }
-
-      .form-control.is-invalid {
-        border-color: #f56565;
-        background-color: #fff5f5;
-      }
-
       .input-feedback {
         margin-top: 0.5rem;
-        font-size: 0.875rem;
+        font-size: 0.92rem;
+        color: var(--text-secondary);
       }
-
       .error-message {
-        color: #e53e3e;
-        display: flex;
-        align-items: center;
-        font-weight: 500;
+        color: #dc2626;
       }
-
       .success-message {
-        color: #38a169;
-        display: flex;
-        align-items: center;
-        font-weight: 500;
+        color: #059669;
       }
-
       .field-help {
         margin-top: 0.5rem;
-        font-size: 0.875rem;
-        color: #718096;
+        font-size: 0.92rem;
+        color: var(--text-secondary);
         display: flex;
         align-items: center;
       }
@@ -578,16 +581,24 @@ export class TaskFormComponent implements OnInit {
       setTimeout(() => {
         this.submitTask.emit(taskData);
         this.isSubmitting = false;
-        this.showAlert('success', 'Task Saved', 'Task has been saved successfully.');
+        this.showAlert(
+          'success',
+          'Task Saved',
+          'Task has been saved successfully.'
+        );
       }, 1000);
     } else {
       this.markFormGroupTouched();
-      this.showAlert('warning', 'Validation Error', 'Please fix the errors in the form before submitting.');
+      this.showAlert(
+        'warning',
+        'Validation Error',
+        'Please fix the errors in the form before submitting.'
+      );
     }
   }
 
   markFormGroupTouched() {
-    Object.values(this.taskForm.controls).forEach(control => {
+    Object.values(this.taskForm.controls).forEach((control) => {
       control.markAsTouched();
     });
   }

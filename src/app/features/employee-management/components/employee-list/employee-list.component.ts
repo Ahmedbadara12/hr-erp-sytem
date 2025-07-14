@@ -79,14 +79,14 @@ import { CsvUtilService } from '../../../../shared/services/csv-util.service';
               <div class="mb-1"><b>Email:</b> <span class="text-secondary">{{ emp.email }}</span></div>
               <div class="mb-1"><b>Position:</b> <span class="text-secondary">{{ emp.position }}</span></div>
               <div class="mb-2"><b>Department:</b> <span class="text-secondary">{{ emp.department }}</span></div>
-              <div class="d-flex gap-2 mt-2">
-                <a class="btn btn-info btn-sm flex-fill" [routerLink]="['/employee', 'profile', emp.id]">
+              <div class="d-flex gap-2 mt-2 employee-card-actions">
+                <a class="btn btn-info btn-sm" [routerLink]="['/employee', 'profile', emp.id]">
                   <i class="fas fa-user me-1"></i> Profile
                 </a>
-                <a class="btn btn-warning btn-sm flex-fill" [routerLink]="['/employee', 'edit', emp.id]" *ngIf="role === 'HR' || role === 'Admin'">
+                <a class="btn btn-warning btn-sm" [routerLink]="['/employee', 'edit', emp.id]" *ngIf="role === 'HR' || role === 'Admin'">
                   <i class="fas fa-edit me-1"></i> Edit
                 </a>
-                <button class="btn btn-danger btn-sm flex-fill" (click)="deleteEmployee(emp.id)" *ngIf="role === 'HR' || role === 'Admin'">
+                <button class="btn btn-danger btn-sm" (click)="deleteEmployee(emp.id)" *ngIf="role === 'HR' || role === 'Admin'">
                   <i class="fas fa-trash me-1"></i> Delete
                 </button>
               </div>
@@ -195,10 +195,15 @@ import { CsvUtilService } from '../../../../shared/services/csv-util.service';
       }
       .employee-card .btn {
         width: 100%;
-        margin-bottom: 0.4em;
+        min-width: 160px;
+        max-width: 100%;
+        margin: 0.25em 0;
         font-size: 1em;
         padding: 0.7em 0.7em;
         border-radius: 0.7em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       .employee-card .btn:last-child {
         margin-bottom: 0;
@@ -208,6 +213,14 @@ import { CsvUtilService } from '../../../../shared/services/csv-util.service';
       }
       .employee-card .text-secondary {
         font-size: 0.97em;
+      }
+      .employee-card-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7em;
+        width: 100%;
+        align-items: center;
+        margin-top: 0.5em;
       }
       @media (max-width: 991.98px) {
         .table {
@@ -227,6 +240,9 @@ import { CsvUtilService } from '../../../../shared/services/csv-util.service';
         }
         .employee-card .text-secondary {
           font-size: 0.95em;
+        }
+        .employee-card-actions {
+          gap: 0.5em;
         }
       }
     `,

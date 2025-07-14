@@ -1,5 +1,19 @@
-import { Component, Input, Output, EventEmitter, forwardRef, OnChanges, SimpleChanges } from '@angular/core';
-import { FormControl, ReactiveFormsModule, AbstractControl, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  forwardRef,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+import {
+  FormControl,
+  ReactiveFormsModule,
+  AbstractControl,
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ValidationService } from '../../services/validation.service';
 
@@ -11,8 +25,8 @@ import { ValidationService } from '../../services/validation.service';
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => InputComponent),
-      multi: true
-    }
+      multi: true,
+    },
   ],
   template: `
     <div class="form-field-container">
@@ -21,10 +35,10 @@ import { ValidationService } from '../../services/validation.service';
         {{ label }}
         <span *ngIf="required" class="required-indicator">*</span>
       </label>
-      
+
       <div class="input-wrapper">
-        <input 
-          [type]="type" 
+        <input
+          [type]="type"
           class="form-control"
           [class]="getInputClasses()"
           [value]="value"
@@ -34,16 +48,22 @@ import { ValidationService } from '../../services/validation.service';
           [id]="fieldId"
           [attr.autocomplete]="autocomplete"
           [name]="fieldId"
-          [attr.aria-describedby]="hasError(control) ? fieldId + '-error' : null"
+          [attr.aria-describedby]="
+            hasError(control) ? fieldId + '-error' : null
+          "
           [attr.aria-invalid]="hasError(control)"
         />
-        
+
         <div class="input-icon" *ngIf="inputIcon">
           <i [class]="inputIcon"></i>
         </div>
-        
+
         <div class="input-feedback" *ngIf="showFeedback">
-          <div *ngIf="hasError(control)" class="error-message" [id]="fieldId + '-error'">
+          <div
+            *ngIf="hasError(control)"
+            class="error-message"
+            [id]="fieldId + '-error'"
+          >
             <i class="fas fa-exclamation-circle me-1"></i>
             {{ getErrorMessage(control, label) }}
           </div>
@@ -53,250 +73,252 @@ import { ValidationService } from '../../services/validation.service';
           </div>
         </div>
       </div>
-      
+
       <div class="field-help" *ngIf="helpText">
         <i class="fas fa-info-circle me-1"></i>
         {{ helpText }}
       </div>
     </div>
   `,
-  styles: [`
-    .form-field-container {
-      margin-bottom: 1.5rem;
-    }
+  styles: [
+    `
+      .form-field-container {
+        margin-bottom: 1.5rem;
+      }
 
-    .form-label {
-      display: flex;
-      align-items: center;
-      font-weight: 600;
-      color: #1a202c;
-      margin-bottom: 0.5rem;
-      font-size: 0.95rem;
-    }
+      .form-label {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+      }
 
-    .required-indicator {
-      color: #dc2626;
-      margin-left: 0.25rem;
-      font-weight: 700;
-    }
+      .required-indicator {
+        color: #dc2626;
+        margin-left: 0.25rem;
+        font-weight: 700;
+      }
 
-    .input-wrapper {
-      position: relative;
-    }
+      .input-wrapper {
+        position: relative;
+      }
 
-    .form-control {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 2px solid #d1d5db;
-      border-radius: 0.75rem;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: #ffffff;
-      color: #000000;
-      font-weight: 500;
-    }
-
-    .form-control::placeholder {
-      color: #6b7280;
-      opacity: 1;
-    }
-
-    .form-control::-webkit-input-placeholder {
-      color: #6b7280;
-      opacity: 1;
-    }
-
-    .form-control::-moz-placeholder {
-      color: #6b7280;
-      opacity: 1;
-    }
-
-    .form-control:-ms-input-placeholder {
-      color: #6b7280;
-      opacity: 1;
-    }
-
-    .form-control:-moz-placeholder {
-      color: #6b7280;
-      opacity: 1;
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      color: #000000;
-    }
-
-    .form-control.is-valid {
-      border-color: #10b981;
-      background-color: #f0fdf4;
-      color: #000000;
-    }
-
-    .form-control.is-invalid {
-      border-color: #ef4444;
-      background-color: #fef2f2;
-      color: #000000;
-    }
-
-    .input-icon {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #a0aec0;
-      pointer-events: none;
-    }
-
-    .input-feedback {
-      margin-top: 0.5rem;
-      font-size: 0.875rem;
-    }
-
-    .error-message {
-      color: #dc2626;
-      display: flex;
-      align-items: center;
-      font-weight: 500;
-    }
-
-    .success-message {
-      color: #059669;
-      display: flex;
-      align-items: center;
-      font-weight: 500;
-    }
-
-    .field-help {
-      margin-top: 0.5rem;
-      font-size: 0.875rem;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
-    }
-
-    /* Input Types */
-    .form-control[type="email"] {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-      background-position: right 0.5rem center;
-      background-repeat: no-repeat;
-      background-size: 1.5em 1.5em;
-      padding-right: 2.5rem;
-    }
-
-    .form-control[type="password"] {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-      background-position: right 0.5rem center;
-      background-repeat: no-repeat;
-      background-size: 1.5em 1.5em;
-      padding-right: 2.5rem;
-    }
-
-    /* Disabled State */
-    .form-control:disabled {
-      background-color: #f7fafc;
-      color: #a0aec0;
-      cursor: not-allowed;
-    }
-
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
       .form-control {
-        padding: 0.875rem 1rem;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--border-light);
+        border-radius: 0.75rem;
         font-size: 1rem;
-      }
-
-      .form-label {
-        font-size: 0.9rem;
-      }
-
-      .input-feedback {
-        font-size: 0.8rem;
-      }
-    }
-
-    /* Dark Mode Support */
-    @media (prefers-color-scheme: dark) {
-      .form-label {
-        color: #f9fafb;
-      }
-
-      .form-control {
-        background: #1f2937;
-        border-color: #374151;
-        color: #ffffff;
+        transition: all 0.3s ease;
+        background: var(--surface-primary);
+        color: var(--text-primary);
         font-weight: 500;
       }
 
       .form-control::placeholder {
-        color: #9ca3af;
+        color: var(--text-secondary);
         opacity: 1;
       }
 
       .form-control::-webkit-input-placeholder {
-        color: #9ca3af;
+        color: var(--text-secondary);
         opacity: 1;
       }
 
       .form-control::-moz-placeholder {
-        color: #9ca3af;
+        color: var(--text-secondary);
         opacity: 1;
       }
 
       .form-control:-ms-input-placeholder {
-        color: #9ca3af;
+        color: var(--text-secondary);
         opacity: 1;
       }
 
       .form-control:-moz-placeholder {
-        color: #9ca3af;
+        color: var(--text-secondary);
         opacity: 1;
       }
 
       .form-control:focus {
+        outline: none;
         border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        color: #000000;
       }
 
       .form-control.is-valid {
-        background-color: #064e3b;
         border-color: #10b981;
-        color: #ffffff;
+        background-color: #f0fdf4;
+        color: #000000;
       }
 
       .form-control.is-invalid {
-        background-color: #450a0a;
         border-color: #ef4444;
-        color: #ffffff;
+        background-color: #fef2f2;
+        color: #000000;
+      }
+
+      .input-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #a0aec0;
+        pointer-events: none;
+      }
+
+      .input-feedback {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .error-message {
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+      }
+
+      .success-message {
+        color: #059669;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
       }
 
       .field-help {
-        color: #9ca3af;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
       }
-    }
 
-    /* Animation */
-    .form-control {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .input-feedback {
-      animation: slideInUp 0.3s ease-out;
-    }
-
-    @keyframes slideInUp {
-      from {
-        opacity: 0;
-        transform: translateY(5px);
+      /* Input Types */
+      .form-control[type='email'] {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+
+      .form-control[type='password'] {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
       }
-    }
-  `]
+
+      /* Disabled State */
+      .form-control:disabled {
+        background-color: #f7fafc;
+        color: #a0aec0;
+        cursor: not-allowed;
+      }
+
+      /* Mobile Responsive */
+      @media (max-width: 768px) {
+        .form-control {
+          padding: 0.875rem 1rem;
+          font-size: 1rem;
+        }
+
+        .form-label {
+          font-size: 0.9rem;
+        }
+
+        .input-feedback {
+          font-size: 0.8rem;
+        }
+      }
+
+      /* Dark Mode Support */
+      @media (prefers-color-scheme: dark) {
+        .form-label {
+          color: #f9fafb;
+        }
+
+        .form-control {
+          background: #1f2937;
+          border-color: #374151;
+          color: #ffffff;
+          font-weight: 500;
+        }
+
+        .form-control::placeholder {
+          color: #9ca3af;
+          opacity: 1;
+        }
+
+        .form-control::-webkit-input-placeholder {
+          color: #9ca3af;
+          opacity: 1;
+        }
+
+        .form-control::-moz-placeholder {
+          color: #9ca3af;
+          opacity: 1;
+        }
+
+        .form-control:-ms-input-placeholder {
+          color: #9ca3af;
+          opacity: 1;
+        }
+
+        .form-control:-moz-placeholder {
+          color: #9ca3af;
+          opacity: 1;
+        }
+
+        .form-control:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+          color: #ffffff;
+        }
+
+        .form-control.is-valid {
+          background-color: #064e3b;
+          border-color: #10b981;
+          color: #ffffff;
+        }
+
+        .form-control.is-invalid {
+          background-color: #450a0a;
+          border-color: #ef4444;
+          color: #ffffff;
+        }
+
+        .field-help {
+          color: #9ca3af;
+        }
+      }
+
+      /* Animation */
+      .form-control {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .input-feedback {
+        animation: slideInUp 0.3s ease-out;
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `,
+  ],
 })
 export class InputComponent implements ControlValueAccessor, OnChanges {
   @Input() label = '';
@@ -401,7 +423,10 @@ export class InputComponent implements ControlValueAccessor, OnChanges {
     return this.validationService.isValid(control);
   }
 
-  getErrorMessage(control: AbstractControl, fieldName: string = 'This field'): string {
+  getErrorMessage(
+    control: AbstractControl,
+    fieldName: string = 'This field'
+  ): string {
     return this.validationService.getErrorMessage(control, fieldName);
   }
-} 
+}

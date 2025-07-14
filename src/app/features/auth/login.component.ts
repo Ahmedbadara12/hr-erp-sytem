@@ -176,7 +176,7 @@ import { InputComponent } from '../../shared/components/input/input.component';
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--background);
+        background: var(--surface-primary);
         padding: 0;
       }
 

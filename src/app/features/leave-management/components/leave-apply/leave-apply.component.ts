@@ -116,7 +116,7 @@ import { InputComponent } from '../../../../shared/components/input/input.compon
         <form [formGroup]="leaveForm" class="leave-form">
           <!-- Step 1: Leave Type -->
           <div *ngIf="step === 1" class="step-content">
-            <h3 class="step-title">
+            <h3 class="step-title text-white ">
               <i class="fas fa-list me-2"></i>Select Leave Type
             </h3>
             <div class="form-group">
@@ -167,8 +167,8 @@ import { InputComponent } from '../../../../shared/components/input/input.compon
 
           <!-- Step 2: Dates -->
           <div *ngIf="step === 2" class="step-content">
-            <h3 class="step-title">
-              <i class="fas fa-calendar-alt me-2"></i>Select Dates
+            <h3 class="step-title text-white ">
+              <i class="fas fa-calendar-alt text-white me-2"></i>Select Dates
             </h3>
             <div class="row">
               <div class="col-md-6">
@@ -218,7 +218,7 @@ import { InputComponent } from '../../../../shared/components/input/input.compon
 
           <!-- Step 3: Reason -->
           <div *ngIf="step === 3" class="step-content">
-            <h3 class="step-title">
+            <h3 class="step-title text-white ">
               <i class="fas fa-comment me-2"></i>Provide Reason
             </h3>
             <div class="form-group">
